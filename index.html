@@ -80,8 +80,8 @@ font-size:50px;
 <div class="card">
 <h2>Weather</h2>
 
-<div class="weather">☀️ 16°C</div>
-<div class="item">Partly cloudy</div>
+<div id="weatherTemp" class="weather"></div>
+<div id="weatherDesc" class="item"></div>
 
 </div>
 
@@ -137,6 +137,20 @@ list.appendChild(item);
 }
 
 });
+
+});
+
+<script>
+
+fetch("https://wttr.in/?format=j1")
+.then(r => r.json())
+.then(data => {
+
+document.getElementById("weatherTemp").innerText =
+data.current_condition[0].temp_C + "°C";
+
+document.getElementById("weatherDesc").innerText =
+data.current_condition[0].weatherDesc[0].value;
 
 });
 
