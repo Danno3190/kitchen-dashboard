@@ -160,6 +160,8 @@ fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
 const events=data.split("BEGIN:VEVENT");
 const list=document.getElementById("calendar");
 
+let futureEvents=[];
+
 events.forEach(event=>{
 
 let title=event.match(/SUMMARY:(.*)/);
@@ -174,17 +176,26 @@ const month=raw.substring(4,6);
 const day=raw.substring(6,8);
 
 const eventDate=new Date(year,month-1,day);
-const today=new Date();
 
 if(eventDate < new Date().setHours(0,0,0,0)) return;
+
+futureEvents.push({
+date:eventDate,
+title:title[1],
+display:day+"/"+month+" - "+title[1]
+});
+
+});
+
+futureEvents.sort((a,b)=>a.date-b.date);
+
+futureEvents.slice(0,5).forEach(event=>{
 
 let item=document.createElement("li");
 item.style.fontSize="28px";
 item.style.margin="10px 0";
 
-item.innerText=day+"/"+month+" - "+title[1];
-
-if(list.children.length>=5) return;
+item.innerText=event.display;
 
 list.appendChild(item);
 
