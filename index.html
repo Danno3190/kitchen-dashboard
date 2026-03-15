@@ -163,7 +163,7 @@ const list=document.getElementById("calendar");
 events.forEach(event=>{
 
 let title=event.match(/SUMMARY:(.*)/);
-let date=event.match(/DTSTART.*:(.*)/);
+let date=event.match(/DTSTART[^:]*:(.*)/);
 
 if(!title||!date) return;
 
@@ -176,7 +176,7 @@ const day=raw.substring(6,8);
 const eventDate=new Date(year,month-1,day);
 const today=new Date();
 
-if(eventDate<today) return;
+if(eventDate < new Date().setHours(0,0,0,0)) return;
 
 let item=document.createElement("li");
 item.style.fontSize="28px";
