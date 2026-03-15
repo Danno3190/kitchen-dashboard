@@ -1,32 +1,43 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 
 body{
 margin:0;
 font-family:-apple-system, Arial;
 color:white;
-background:url("https://images.unsplash.com/photo-1504754524776-8f4f37790ca0") center/cover;
+background:url("https://images.unsplash.com/photo-1504754524776-8f4f37790ca0") center/cover no-repeat;
+height:100vh;
 }
 
 .overlay{
 background:rgba(0,0,0,0.55);
-height:100vh;
-padding:40px;
+height:100%;
+padding:30px;
+}
+
+.clock{
+font-size:70px;
+font-weight:600;
+text-align:center;
+margin-bottom:20px;
 }
 
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
-grid-gap:30px;
+grid-gap:25px;
 }
 
 .card{
-background:rgba(0,0,0,0.5);
+background:rgba(0,0,0,0.55);
 padding:25px;
-border-radius:20px;
+border-radius:25px;
 }
 
 h2{
@@ -35,7 +46,7 @@ margin-top:0;
 }
 
 .item{
-font-size:30px;
+font-size:28px;
 margin:10px 0;
 }
 
@@ -43,41 +54,58 @@ margin:10px 0;
 font-size:50px;
 }
 
+input[type=checkbox]{
+transform:scale(1.5);
+margin-right:10px;
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="overlay">
 
+<div id="clock" class="clock"></div>
+
 <div class="grid">
 
 <div class="card">
+
 <h2>Calendar</h2>
 
 <ul id="calendar"></ul>
 
 </div>
 
+
 <div class="card">
+
 <h2>Shopping</h2>
 
-<div class="item">□ Milk</div>
-<div class="item">□ Eggs</div>
-<div class="item">□ Bread</div>
+<label><input type="checkbox"> Milk</label><br>
+<label><input type="checkbox"> Eggs</label><br>
+<label><input type="checkbox"> Bread</label>
 
 </div>
 
+
 <div class="card">
+
 <h2>Meal Plan</h2>
 
-<div class="item">Mon – Pasta</div>
-<div class="item">Tue – Tacos</div>
-<div class="item">Wed – Curry</div>
+<div contenteditable="true" class="item">Mon – Pasta</div>
+<div contenteditable="true" class="item">Tue – Tacos</div>
+<div contenteditable="true" class="item">Wed – Curry</div>
+<div contenteditable="true" class="item">Thu – Stir Fry</div>
+<div contenteditable="true" class="item">Fri – Pizza</div>
 
 </div>
 
+
 <div class="card">
+
 <h2>Weather</h2>
 
 <div id="weatherTemp" class="weather"></div>
@@ -89,72 +117,26 @@ font-size:50px;
 
 </div>
 
-</body>
-  
+
 <script>
 
-const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";
-
-fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-.then(r => r.text())
-.then(data => {
-
-const events = data.split("BEGIN:VEVENT");
-const list = document.getElementById("calendar");
-
-events.forEach(event => {
-
-let title = event.match(/SUMMARY:(.*)/);
-let date = event.match(/DTSTART.*:(.*)/);
-
-if(title && date){
-
-let item = document.createElement("li");
-item.style.fontSize="28px";
-item.style.margin="10px 0";
-
-const raw = date[1].trim();
-
-const year = raw.substring(0,4);
-const month = raw.substring(4,6);
-const day = raw.substring(6,8);
-
-const eventDate = new Date(year, month-1, day);
-const today = new Date();
-
-if(eventDate < today) return;
-
-item.innerText = day + "/" + month + " - " + title[1];
-
-if(list.children.length >= 5) return;
-
-list.appendChild(item);
-
-list.appendChild(item);
-
-  if(list.children.length >= 5) return;
-
+function updateClock(){
+const now = new Date();
+document.getElementById("clock").innerText =
+now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 }
 
-});
-
-});
-
-</div>
-
-<script>
-
-/* CALENDAR SCRIPT */
+setInterval(updateClock,1000);
+updateClock();
 
 </script>
 
+
 <script>
 
-/* WEATHER SCRIPT */
-
-fetch("https://wttr.in/Gateshead?format=j1")
-.then(response => response.json())
-.then(data => {
+fetch("https://wttr.in/Manchester?format=j1")
+.then(r=>r.json())
+.then(data=>{
 
 document.getElementById("weatherTemp").innerText =
 data.current_condition[0].temp_C + "°C";
@@ -163,6 +145,61 @@ document.getElementById("weatherDesc").innerText =
 data.current_condition[0].weatherDesc[0].value;
 
 });
+
+</script>
+
+
+<script>
+
+const url="https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";
+
+fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
+.then(r=>r.text())
+.then(data=>{
+
+const events=data.split("BEGIN:VEVENT");
+const list=document.getElementById("calendar");
+
+events.forEach(event=>{
+
+let title=event.match(/SUMMARY:(.*)/);
+let date=event.match(/DTSTART.*:(.*)/);
+
+if(!title||!date) return;
+
+const raw=date[1].trim();
+
+const year=raw.substring(0,4);
+const month=raw.substring(4,6);
+const day=raw.substring(6,8);
+
+const eventDate=new Date(year,month-1,day);
+const today=new Date();
+
+if(eventDate<today) return;
+
+let item=document.createElement("li");
+item.style.fontSize="28px";
+item.style.margin="10px 0";
+
+item.innerText=day+"/"+month+" - "+title[1];
+
+if(list.children.length>=5) return;
+
+list.appendChild(item);
+
+});
+
+});
+
+</script>
+
+
+<script>
+
+setTimeout(()=>{
+location.reload();
+},300000);
 
 </script>
 
