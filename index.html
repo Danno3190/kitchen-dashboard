@@ -242,9 +242,14 @@ li.style.cursor="pointer";
 
 li.innerHTML = `
 <input type="checkbox" ${item.done ? "checked":""} onclick="toggleItem(${i})">
+
 <span style="${item.done ? "text-decoration:line-through;opacity:0.6":""}">
 ${item.name}
 </span>
+
+<button onclick="deleteItem(${i})" style="margin-left:10px;border:none;background:none;color:#ff6b6b;font-size:20px;cursor:pointer">
+❌
+</button>
 `;
 
 list.appendChild(li);
@@ -272,6 +277,13 @@ renderList();
 function toggleItem(i){
 
 shopping[i].done = !shopping[i].done;
+
+renderList();
+
+}
+    function deleteItem(i){
+
+shopping.splice(i,1);
 
 renderList();
 
