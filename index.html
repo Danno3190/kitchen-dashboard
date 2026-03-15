@@ -124,8 +124,11 @@ const today = new Date();
 
 if(eventDate < today) return;
 
-item.innerText =
-day + "/" + month + " - " + title[1];
+item.innerText = day + "/" + month + " - " + title[1];
+
+if(list.children.length >= 5) return;
+
+list.appendChild(item);
 
 list.appendChild(item);
 
