@@ -113,10 +113,14 @@ let item = document.createElement("li");
 item.style.fontSize="28px";
 item.style.margin="10px 0";
 
+const raw = date[1].trim();
+
+const year = raw.substring(0,4);
+const month = raw.substring(4,6);
+const day = raw.substring(6,8);
+
 item.innerText =
-date[1].substring(6,8) + "/" +
-date[1].substring(4,6) +
-" - " + title[1];
+day + "/" + month + " - " + title[1];
 
 list.appendChild(item);
 
