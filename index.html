@@ -102,7 +102,7 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
 const events = data.split("BEGIN:VEVENT");
 const list = document.getElementById("calendar");
 
-events.slice(1,6).forEach(event => {
+events.forEach(event => {
 
 let title = event.match(/SUMMARY:(.*)/);
 let date = event.match(/DTSTART.*:(.*)/);
@@ -119,10 +119,17 @@ const year = raw.substring(0,4);
 const month = raw.substring(4,6);
 const day = raw.substring(6,8);
 
+const eventDate = new Date(year, month-1, day);
+const today = new Date();
+
+if(eventDate < today) return;
+
 item.innerText =
 day + "/" + month + " - " + title[1];
 
 list.appendChild(item);
+
+  if(list.children.length >= 5) return;
 
 }
 
