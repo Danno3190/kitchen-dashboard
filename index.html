@@ -28,6 +28,16 @@ text-align:center;
 margin-bottom:20px;
 }
 
+  .clockBlock{
+text-align:center;
+margin-bottom:20px;
+}
+
+.dateBar{
+font-size:28px;
+opacity:0.85;
+}
+
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -38,6 +48,17 @@ grid-gap:25px;
 background:rgba(0,0,0,0.55);
 padding:25px;
 border-radius:25px;
+}
+
+  .meal{
+font-size:28px;
+margin:8px 0;
+}
+
+.todayMeal{
+background:rgba(255,255,255,0.2);
+padding:6px;
+border-radius:10px;
 }
 
 h2{
@@ -67,7 +88,12 @@ margin-right:10px;
 
 <div class="overlay">
 
+<div class="clockBlock">
+
 <div id="clock" class="clock"></div>
+<div id="dateBar" class="dateBar"></div>
+
+</div>
 
 <div class="grid">
 
@@ -98,14 +124,19 @@ margin-right:10px;
 
 <h2>Meal Plan</h2>
 
-<div contenteditable="true" class="item">Mon – Pasta</div>
-<div contenteditable="true" class="item">Tue – Tacos</div>
-<div contenteditable="true" class="item">Wed – Curry</div>
-<div contenteditable="true" class="item">Thu – Stir Fry</div>
-<div contenteditable="true" class="item">Fri – Pizza</div>
+<div id="meals">
+
+<div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
+<div data-day="2" contenteditable="true" class="meal">Tue – Tacos</div>
+<div data-day="3" contenteditable="true" class="meal">Wed – Curry</div>
+<div data-day="4" contenteditable="true" class="meal">Thu – Stir Fry</div>
+<div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
+<div data-day="6" contenteditable="true" class="meal">Sat – Takeaway</div>
+<div data-day="0" contenteditable="true" class="meal">Sun – Roast</div>
 
 </div>
 
+</div>
 
 <div class="card">
 
@@ -124,9 +155,15 @@ margin-right:10px;
 <script>
 
 function updateClock(){
+
 const now = new Date();
+
 document.getElementById("clock").innerText =
 now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+document.getElementById("dateBar").innerText =
+now.toLocaleDateString([], {weekday:'long', day:'numeric', month:'long'});
+
 }
 
 setInterval(updateClock,1000);
@@ -185,7 +222,7 @@ if(eventDate < new Date().setHours(0,0,0,0)) return;
 futureEvents.push({
 date:eventDate,
 title:title[1],
-display:day+"/"+month+" - "+title[1]
+display:day+"/"+month+timeText+" - "+title[1]
 });
 
 });
@@ -292,5 +329,17 @@ renderList();
 renderList();
 
 </script>
+
+  const today = new Date().getDay();
+
+document.querySelectorAll(".meal").forEach(meal => {
+
+if(parseInt(meal.dataset.day) === today){
+
+meal.classList.add("todayMeal");
+
+}
+
+});
 </body>
 </html>
