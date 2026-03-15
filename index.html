@@ -140,10 +140,20 @@ list.appendChild(item);
 
 });
 
+</div>
+
 <script>
 
-fetch("https://wttr.in/Gateshead?format=j1")
-.then(r => r.json())
+/* CALENDAR SCRIPT */
+
+</script>
+
+<script>
+
+/* WEATHER SCRIPT */
+
+fetch("https://wttr.in/Manchester?format=j1")
+.then(response => response.json())
 .then(data => {
 
 document.getElementById("weatherTemp").innerText =
@@ -157,5 +167,4 @@ data.current_condition[0].weatherDesc[0].value;
 </script>
 
 </body>
-  
 </html>
