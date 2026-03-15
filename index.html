@@ -81,12 +81,13 @@ margin-right:10px;
 
 
 <div class="card">
-
 <h2>Shopping</h2>
 
-<label><input type="checkbox"> Milk</label><br>
-<label><input type="checkbox"> Eggs</label><br>
-<label><input type="checkbox"> Bread</label>
+<ul id="shoppingList"></ul>
+
+<input id="newItem" placeholder="Add item..." style="width:80%;padding:8px;border-radius:8px;border:none">
+
+<button onclick="addItem()" style="padding:8px 12px;border:none;border-radius:8px;margin-left:5px">Add</button>
 
 </div>
 
@@ -214,5 +215,56 @@ location.reload();
 
 </script>
 
+  <script>
+
+let shopping = JSON.parse(localStorage.getItem("shopping")) || ["Milk","Eggs","Bread"];
+
+function renderList(){
+
+const list=document.getElementById("shoppingList");
+list.innerHTML="";
+
+shopping.forEach((item,i)=>{
+
+let li=document.createElement("li");
+
+li.style.fontSize="24px";
+li.style.margin="8px 0";
+
+li.innerHTML=`<input type="checkbox" onclick="removeItem(${i})"> ${item}`;
+
+list.appendChild(li);
+
+});
+
+localStorage.setItem("shopping",JSON.stringify(shopping));
+
+}
+
+function addItem(){
+
+const input=document.getElementById("newItem");
+
+if(input.value.trim()=="") return;
+
+shopping.push(input.value);
+
+input.value="";
+
+renderList();
+
+}
+
+function removeItem(i){
+
+shopping.splice(i,1);
+
+renderList();
+
+}
+
+renderList();
+
+</script>
 </body>
 </html>
