@@ -48,16 +48,16 @@
 
     .item {
       font-size: 18px;
-    }
+      
+      /* Adjust font size for the weather tile */
+#weatherTemp {
+  font-size: 18px;  /* Smaller font size */
+  font-weight: bold;
+}
 
-    #weatherTemp {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    #weatherDesc {
-      font-size: 16px;
-    }
+#weatherDesc {
+  font-size: 14px;  /* Smaller font size */
+}
   </style>
 </head>
 <body>
@@ -77,19 +77,38 @@
       <button onclick="addShoppingItem()">Add</button>
     </div>
 
-    <!-- Meal Plan Section -->
-    <div class="card">
-      <h2>Meal Plan</h2>
-      <div id="meals">
-        <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
-        <div data-day="2" contenteditable="true" class="meal">Tue – Tacos</div>
-        <div data-day="3" contenteditable="true" class="meal">Wed – Curry</div>
-        <div data-day="4" contenteditable="true" class="meal">Thu – Stir Fry</div>
-        <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
-        <div data-day="6" contenteditable="true" class="meal">Sat – Takeaway</div>
-        <div data-day="0" contenteditable="true" class="meal">Sun – Roast</div>
-      </div>
-    </div>
+ <script>
+// Load saved meals from localStorage
+function loadMeals() {
+  const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};  // Load from localStorage
+
+  // Loop through each meal
+  document.querySelectorAll('.meal').forEach(meal => {
+    const day = meal.dataset.day;
+    if (savedMeals[day]) {
+      meal.innerText = savedMeals[day];  // Set the meal text from localStorage
+    }
+  });
+}
+
+// Save changes made to meals into localStorage
+function saveMeals() {
+  const meals = {};
+  document.querySelectorAll('.meal').forEach(meal => {
+    const day = meal.dataset.day;
+    meals[day] = meal.innerText;  // Save meal text to localStorage
+  });
+  localStorage.setItem('mealPlan', JSON.stringify(meals));  // Store in localStorage
+}
+
+// Automatically save meals whenever edited
+document.querySelectorAll('.meal').forEach(meal => {
+  meal.addEventListener('blur', saveMeals);  // Save when focus leaves the element
+});
+
+// Load saved meals when the page loads
+loadMeals(); 
+</script>
 
     <!-- Weather Section -->
     <div class="card">
@@ -99,35 +118,43 @@
     </div>
   </div>
 
-  <script>
-    // Calendar
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your actual public iCloud Calendar URL
-    
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-    .then(response => response.text())
-    .then(data => {
-      const events = data.split("BEGIN:VEVENT");
-      const list = document.getElementById("calendar");
+<script>
+const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace this with your public iCloud calendar URL
 
-      events.forEach(event => {
-        let title = event.match(/SUMMARY:(.*)/);
-        let date = event.match(/DTSTART[^:]*:(.*)/);
+// Fetching events from the iCloud Calendar URL using AllOrigins to bypass CORS
+fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+  .then(response => response.text())
+  .then(data => {
+    const events = data.split("BEGIN:VEVENT"); // Splitting events from the calendar
+    const list = document.getElementById("calendar");
 
-        if (!title || !date) return;
+    // Clear previous events
+    list.innerHTML = '';
 
-        const raw = date[1].trim();
-        const year = raw.substring(0, 4);
-        const month = raw.substring(4, 6);
-        const day = raw.substring(6, 8);
+    events.forEach(event => {
+      let title = event.match(/SUMMARY:(.*)/);  // Get the title of the event
+      let date = event.match(/DTSTART[^:]*:(.*)/);  // Get the start date of the event
 
-        const eventDate = new Date(year, month - 1, day);
+      if (!title || !date) return;  // Skip if title or date is missing
 
-        const item = document.createElement("li");
-        item.textContent = `${day}/${month} - ${title[1]}`;
-        list.appendChild(item);
-      });
-    })
-    .catch(error => console.error("Error fetching calendar events:", error));
+      const raw = date[1].trim();
+      const year = raw.substring(0, 4);
+      const month = raw.substring(4, 6);
+      const day = raw.substring(6, 8);
+
+      const eventDate = new Date(year, month - 1, day);  // Create a date object for the event
+
+      const item = document.createElement("li");
+      item.textContent = `${day}/${month} - ${title[1]}`;  // Display the event in the list
+      list.appendChild(item);  // Append to the list
+    });
+  })
+  .catch(error => {
+    console.error("Error fetching calendar events:", error);
+    const list = document.getElementById("calendar");
+    list.innerHTML = "<li>Unable to load events.</li>";  // If there's an error
+  });
+</script>
 
     // Shopping List
     let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
