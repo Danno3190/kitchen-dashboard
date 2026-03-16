@@ -196,51 +196,41 @@ const url="https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_
 fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
 .then(r=>r.text())
 .then(data=>{
+  const events=data.split("BEGIN:VEVENT");
+  const list=document.getElementById("calendar");
 
-const events=data.split("BEGIN:VEVENT");
-const list=document.getElementById("calendar");
+  let futureEvents=[];
 
-let futureEvents=[];
+  events.forEach(event=>{
+    let title=event.match(/SUMMARY:(.*)/);
+    let date=event.match(/DTSTART[^:]*:(.*)/);
 
-events.forEach(event=>{
+    if(!title || !date) return;
 
-let title=event.match(/SUMMARY:(.*)/);
-let date=event.match(/DTSTART[^:]*:(.*)/);
+    const raw=date[1].trim();
+    const year = raw.substring(0, 4);
+    const month = raw.substring(4, 6);
+    const day = raw.substring(6, 8);
 
-if(!title||!date) return;
+    const eventDate = new Date(year, month - 1, day);
+    if(eventDate < new Date().setHours(0, 0, 0, 0)) return;
 
-const raw=date[1].trim();
+    futureEvents.push({
+      date: eventDate,
+      title: title[1],
+      display: `${day}/${month} - ${title[1]}`,
+    });
+  });
 
-const year=raw.substring(0,4);
-const month=raw.substring(4,6);
-const day=raw.substring(6,8);
+  futureEvents.sort((a, b) => a.date - b.date);
 
-const eventDate=new Date(year,month-1,day);
-
-if(eventDate < new Date().setHours(0,0,0,0)) return;
-
-futureEvents.push({
-date:eventDate,
-title:title[1],
-display:day+"/"+month+timeText+" - "+title[1]
-});
-
-});
-
-futureEvents.sort((a,b)=>a.date-b.date);
-
-futureEvents.slice(0,5).forEach(event=>{
-
-let item=document.createElement("li");
-item.style.fontSize="28px";
-item.style.margin="10px 0";
-
-item.innerText=event.display;
-
-list.appendChild(item);
-
-});
-
+  futureEvents.slice(0, 5).forEach(event => {
+    let item = document.createElement("li");
+    item.style.fontSize = "28px";
+    item.style.margin = "10px 0";
+    item.innerText = event.display;
+    list.appendChild(item);
+  });
 });
 
 </script>
@@ -330,16 +320,12 @@ renderList();
 
 </script>
 
-  const today = new Date().getDay();
+const today = new Date().getDay();
 
 document.querySelectorAll(".meal").forEach(meal => {
-
-if(parseInt(meal.dataset.day) === today){
-
-meal.classList.add("todayMeal");
-
-}
-
+  if (parseInt(meal.dataset.day) === today) {
+    meal.classList.add("todayMeal");
+  }
 });
 </body>
 </html>
