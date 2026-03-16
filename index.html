@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kitchen Dashboard</title>
   <style>
+    /* Your styles go here */
     body {
       background-color: #2f2f2f;
       color: white;
@@ -36,10 +37,12 @@
       cursor: pointer;
     }
 
+    /* Highlight current day */
     .todayMeal {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.3);  /* Light highlight */
       padding: 6px;
       border-radius: 10px;
+      font-weight: bold;
     }
 
     #weatherTemp {
@@ -66,12 +69,12 @@
       <h2>Meal Plan</h2>
       <div id="meals">
         <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
-        <div data-day="2" contenteditable="true" class="meal">Tue – Tacos</div>
-        <div data-day="3" contenteditable="true" class="meal">Wed – Curry</div>
-        <div data-day="4" contenteditable="true" class="meal">Thu – Stir Fry</div>
+        <div data-day="2" contenteditable="true" class="meal">Tue – Mams</div>
+        <div data-day="3" contenteditable="true" class="meal">Wed – Dinner</div>
+        <div data-day="4" contenteditable="true" class="meal">Thu – Burgers</div>
         <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
-        <div data-day="6" contenteditable="true" class="meal">Sat – Takeaway</div>
-        <div data-day="0" contenteditable="true" class="meal">Sun – Roast</div>
+        <div data-day="6" contenteditable="true" class="meal">Sat – Mams</div>
+        <div data-day="0" contenteditable="true" class="meal">Sun – Dinner</div>
       </div>
     </div>
 
@@ -92,34 +95,6 @@
   </div>
 
   <!-- Commented out the JavaScript temporarily for troubleshooting -->
-  <script>
-    // const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
-    // fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-    //   .then(response => response.text())
-    //   .then(data => {
-    //     const events = data.split("BEGIN:VEVENT");
-    //     const list = document.getElementById("calendar");
-    //     list.innerHTML = '';
-    //     events.forEach(event => {
-    //       let title = event.match(/SUMMARY:(.*)/);
-    //       let date = event.match(/DTSTART[^:]*:(.*)/);
-    //       if (!title || !date) return;
-    //       const raw = date[1].trim();
-    //       const year = raw.substring(0, 4);
-    //       const month = raw.substring(4, 6);
-    //       const day = raw.substring(6, 8);
-    //       const item = document.createElement("li");
-    //       item.textContent = `${day}/${month} - ${title[1]}`;
-    //       list.appendChild(item);
-    //     });
-    //   })
-    //   .catch(error => {
-    //     console.error("Error fetching calendar events:", error);
-    //     const list = document.getElementById("calendar");
-    //     list.innerHTML = "<li>Unable to load events.</li>";
-    //   });
-  </script>
-
   <script>
     // Meal Plan Saving and Loading
     function loadMeals() {
@@ -146,6 +121,15 @@
     });
 
     loadMeals();  // Load meals when the page is opened
+
+    // Highlight current day in meal plan
+    const today = new Date().getDay();  // Get the current day (0 = Sunday, 1 = Monday, etc.)
+
+    document.querySelectorAll('.meal').forEach(meal => {
+      if (parseInt(meal.dataset.day) === today) {
+        meal.classList.add('todayMeal');  // Add class to highlight the current day
+      }
+    });
   </script>
 
   <script>
@@ -185,6 +169,39 @@
     }
 
     renderShoppingList();  // Initial render of the shopping list
+  </script>
+
+  <script>
+    // Calendar Fetch Logic
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
+
+    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+      .then(response => response.text())
+      .then(data => {
+        const events = data.split("BEGIN:VEVENT");
+        const list = document.getElementById("calendar");
+        list.innerHTML = '';  // Clear current events
+
+        events.forEach(event => {
+          const title = event.match(/SUMMARY:(.*)/);
+          const date = event.match(/DTSTART[^:]*:(.*)/);
+          if (!title || !date) return;
+
+          const raw = date[1].trim();
+          const year = raw.substring(0, 4);
+          const month = raw.substring(4, 6);
+          const day = raw.substring(6, 8);
+
+          const item = document.createElement("li");
+          item.textContent = `${day}/${month} - ${title[1]}`;
+          list.appendChild(item);
+        });
+      })
+      .catch(error => {
+        console.error("Error fetching calendar events:", error);
+        const list = document.getElementById("calendar");
+        list.innerHTML = "<li>Unable to load events.</li>";
+      });
   </script>
 
   <script>
