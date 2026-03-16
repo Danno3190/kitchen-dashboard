@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kitchen Dashboard</title>
   <style>
-    /* Add your styling here */
     body {
       background-color: #2f2f2f;
       color: white;
@@ -97,7 +96,7 @@
   <!-- Scripts -->
   <script>
     // Calendar
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your actual iCloud calendar URL
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your actual public iCloud Calendar URL
     
     fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
     .then(response => response.text())
