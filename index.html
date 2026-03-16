@@ -1,326 +1,170 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen Dashboard</title>
+  <style>
+    /* Add your styling here */
+    body {
+      background-color: #2f2f2f;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
 
-<style>
+    .card {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 10px;
+    }
 
-body{
-margin:0;
-font-family:-apple-system, Arial;
-color:white;
-background:url("https://images.unsplash.com/photo-1504754524776-8f4f37790ca0") center/cover no-repeat;
-height:100vh;
-}
+    h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
 
-.overlay{
-background:rgba(0,0,0,0.55);
-height:100%;
-padding:30px;
-}
+    .meal {
+      font-size: 20px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
 
-.clock{
-font-size:70px;
-font-weight:600;
-text-align:center;
-margin-bottom:20px;
-}
+    .todayMeal {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 6px;
+      border-radius: 10px;
+    }
 
-  .clockBlock{
-text-align:center;
-margin-bottom:20px;
-}
+    .weather {
+      font-size: 24px;
+    }
 
-.dateBar{
-font-size:28px;
-opacity:0.85;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-grid-gap:25px;
-}
-
-.card{
-background:rgba(0,0,0,0.55);
-padding:25px;
-border-radius:25px;
-}
-
-  .meal{
-font-size:28px;
-margin:8px 0;
-}
-
-.todayMeal{
-background:rgba(255,255,255,0.2);
-padding:6px;
-border-radius:10px;
-}
-
-h2{
-font-size:40px;
-margin-top:0;
-}
-
-.item{
-font-size:28px;
-margin:10px 0;
-}
-
-.weather{
-font-size:50px;
-}
-
-input[type=checkbox]{
-transform:scale(1.5);
-margin-right:10px;
-}
-
-</style>
-
+    .item {
+      font-size: 18px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="overlay">
+  <!-- Main content -->
+  <div class="grid">
 
-<div class="clockBlock">
+    <!-- Calendar Section -->
+    <div class="card">
+      <h2>Calendar</h2>
+      <ul id="calendar"></ul>
+    </div>
 
-<div id="clock" class="clock"></div>
-<div id="dateBar" class="dateBar"></div>
+    <!-- Shopping List Section -->
+    <div class="card">
+      <h2>Shopping List</h2>
+      <ul id="shoppingList"></ul>
+      <input id="newShoppingItem" placeholder="Add Item" style="width: 80%; padding: 8px;">
+      <button onclick="addShoppingItem()">Add</button>
+    </div>
 
-<div class="grid">
-  <!-- Calendar Section -->
-  <div class="card">
-    <h2>Calendar</h2>
-    <ul id="calendar"></ul>
+    <!-- Meal Plan Section -->
+    <div class="card">
+      <h2>Meal Plan</h2>
+      <div id="meals">
+        <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
+        <div data-day="2" contenteditable="true" class="meal">Tue – Tacos</div>
+        <div data-day="3" contenteditable="true" class="meal">Wed – Curry</div>
+        <div data-day="4" contenteditable="true" class="meal">Thu – Stir Fry</div>
+        <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
+        <div data-day="6" contenteditable="true" class="meal">Sat – Takeaway</div>
+        <div data-day="0" contenteditable="true" class="meal">Sun – Roast</div>
+      </div>
+    </div>
+
+    <!-- Weather Section -->
+    <div class="card">
+      <h2>Weather</h2>
+      <div id="weatherTemp" class="weather"></div>
+      <div id="weatherDesc" class="item"></div>
+    </div>
+
   </div>
 
-
-<div class="card">
-<h2>Shopping</h2>
-
-<ul id="shoppingList"></ul>
-
-<div style="margin-top:10px">
-<input id="newItem" placeholder="Add item..." style="width:65%;padding:8px;border-radius:8px;border:none">
-
-<button onclick="addItem()" style="padding:8px 12px;border:none;border-radius:8px;">Add</button>
-</div>
-
-</div>
-
-
-<div class="card">
-  <h2>Meal Plan</h2>
-  <div id="meals">
-    <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
-    <div data-day="2" contenteditable="true" class="meal">Tue – Tacos</div>
-    <div data-day="3" contenteditable="true" class="meal">Wed – Curry</div>
-    <div data-day="4" contenteditable="true" class="meal">Thu – Stir Fry</div>
-    <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
-    <div data-day="6" contenteditable="true" class="meal">Sat – Takeaway</div>
-    <div data-day="0" contenteditable="true" class="meal">Sun – Roast</div>
-  </div>
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>Weather</h2>
-
-<div id="weatherTemp" class="weather"></div>
-<div id="weatherDesc" class="item"></div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<script>
-
-function updateClock(){
-
-const now = new Date();
-
-document.getElementById("clock").innerText =
-now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
-document.getElementById("dateBar").innerText =
-now.toLocaleDateString([], {weekday:'long', day:'numeric', month:'long'});
-
-}
-
-setInterval(updateClock,1000);
-updateClock();
-
-</script>
-
-
-<script>
-
-fetch("https://wttr.in/Gateshead?format=j1")
-.then(r=>r.json())
-.then(data=>{
-
-document.getElementById("weatherTemp").innerText =
-data.current_condition[0].temp_C + "°C";
-
-document.getElementById("weatherDesc").innerText =
-data.current_condition[0].weatherDesc[0].value;
-
-});
-
-</script>
-
-
-<script>
-
-<script>
-const url="https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";
-
-fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-.then(response => response.text())
-.then(data => {
-  const events = data.split("BEGIN:VEVENT");
-  const list = document.getElementById("calendar");
-  
-  let futureEvents = [];
-
-  events.forEach(event => {
-    let title = event.match(/SUMMARY:(.*)/);
-    let date = event.match(/DTSTART[^:]*:(.*)/);
-
-    if (!title || !date) return;
-
-    const raw = date[1].trim();
-    const year = raw.substring(0, 4);
-    const month = raw.substring(4, 6);
-    const day = raw.substring(6, 8);
-
-    const eventDate = new Date(year, month - 1, day);
-
-    if (eventDate < new Date().setHours(0, 0, 0, 0)) return; // Ignore past events
-
-    futureEvents.push({
-      date: eventDate,
-      title: title[1],
-      display: `${day}/${month} - ${title[1]}`
-    });
-  });
-
-  futureEvents.sort((a, b) => a.date - b.date); // Sort by date
-
-  futureEvents.slice(0, 5).forEach(event => {
-    let item = document.createElement("li");
-    item.style.fontSize = "28px";
-    item.style.margin = "10px 0";
-    item.innerText = event.display;
-    list.appendChild(item);
-  });
-});
-</script>
-
-</script>
-
-
-<script>
-
-setTimeout(()=>{
-location.reload();
-},300000);
-
-</script>
-
+  <!-- Scripts -->
   <script>
+    // Calendar
+    const url = "YOUR_ICALENDAR_URL";
+    
+    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+    .then(response => response.text())
+    .then(data => {
+      const events = data.split("BEGIN:VEVENT");
+      const list = document.getElementById("calendar");
 
-let shopping = JSON.parse(localStorage.getItem("shopping")) || [
-{name:"Milk",done:false},
-{name:"Eggs",done:false},
-{name:"Bread",done:false}
-];
+      events.forEach(event => {
+        let title = event.match(/SUMMARY:(.*)/);
+        let date = event.match(/DTSTART[^:]*:(.*)/);
 
-function renderList(){
+        if (!title || !date) return;
 
-const list=document.getElementById("shoppingList");
-list.innerHTML="";
+        const raw = date[1].trim();
+        const year = raw.substring(0, 4);
+        const month = raw.substring(4, 6);
+        const day = raw.substring(6, 8);
 
-shopping
-.sort((a,b)=>a.done-b.done)
-.forEach((item,i)=>{
+        const eventDate = new Date(year, month - 1, day);
 
-let li=document.createElement("li");
+        const item = document.createElement("li");
+        item.textContent = `${day}/${month} - ${title[1]}`;
+        list.appendChild(item);
+      });
+    });
 
-li.style.fontSize="24px";
-li.style.margin="8px 0";
-li.style.cursor="pointer";
+    // Shopping List
+    let shoppingList = JSON.parse(localStorage.getItem("shopping")) || ["Milk", "Eggs", "Bread"];
 
-li.innerHTML = `
-<input type="checkbox" ${item.done ? "checked":""} onclick="toggleItem(${i})">
+    function renderShoppingList() {
+      const list = document.getElementById("shoppingList");
+      list.innerHTML = '';
+      shoppingList.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        list.appendChild(li);
+      });
+    }
 
-<span style="${item.done ? "text-decoration:line-through;opacity:0.6":""}">
-${item.name}
-</span>
+    function addShoppingItem() {
+      const newItem = document.getElementById("newShoppingItem").value;
+      if (newItem) {
+        shoppingList.push(newItem);
+        localStorage.setItem("shopping", JSON.stringify(shoppingList));
+        renderShoppingList();
+        document.getElementById("newShoppingItem").value = "";
+      }
+    }
 
-<button onclick="deleteItem(${i})" style="margin-left:10px;border:none;background:none;color:#ff6b6b;font-size:20px;cursor:pointer">
-❌
-</button>
-`;
+    renderShoppingList();
 
-list.appendChild(li);
+    // Meal Plan
+    const today = new Date().getDay();
+    document.querySelectorAll(".meal").forEach(meal => {
+      if (parseInt(meal.dataset.day) === today) {
+        meal.classList.add("todayMeal");
+      }
+    });
 
-});
+    // Weather
+    fetch("https://wttr.in/?format=j1")
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById("weatherTemp").textContent = `${data.current_condition[0].temp_C}°C`;
+      document.getElementById("weatherDesc").textContent = data.current_condition[0].weatherDesc[0].value;
+    });
 
-localStorage.setItem("shopping",JSON.stringify(shopping));
-
-}
-
-function addItem(){
-
-const input=document.getElementById("newItem");
-
-if(input.value.trim()=="") return;
-
-shopping.push({name:input.value,done:false});
-
-input.value="";
-
-renderList();
-
-}
-
-function toggleItem(i){
-
-shopping[i].done = !shopping[i].done;
-
-renderList();
-
-}
-    function deleteItem(i){
-
-shopping.splice(i,1);
-
-renderList();
-
-}
-
-renderList();
-
-</script>
-
-const today = new Date().getDay();
-
-document.querySelectorAll(".meal").forEach(meal => {
-  if (parseInt(meal.dataset.day) === today) {
-    meal.classList.add("todayMeal");
-  }
-});
+  </script>
 </body>
 </html>
