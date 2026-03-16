@@ -108,46 +108,76 @@
 
     loadMeals();  // Load meals when the page is opened
 
-    // Calendar Logic (simplified version)
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
+    <script>
+  const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
 
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-      .then(response => response.text())
-      .then(data => {
-        const events = data.split("BEGIN:VEVENT");
-        const list = document.getElementById("calendar");
-        list.innerHTML = '';  // Clear current events
+  fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+    .then(response => response.text())
+    .then(data => {
+      const events = data.split("BEGIN:VEVENT");
+      const list = document.getElementById("calendar");
+      list.innerHTML = '';  // Clear current events
 
-        let count = 0;  // Track number of events displayed
-        const today = new Date();  // Get today's date
-        const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
+      let count = 0;  // Track number of events displayed
+      const today = new Date();  // Get today's date
+      const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
+      const currentMonth = today.getMonth();  // Get the current month (0 = January, 1 = February, etc.)
+      const nextMonth = (currentMonth + 1) % 12;  // Get next month
 
-        events.forEach(event => {
-          if (count >= 5) return;  // Stop once 5 events are shown
+      const upcomingEvents = [];
 
-          const title = event.match(/SUMMARY:(.*)/);
-          const date = event.match(/DTSTART[^:]*:(.*)/);  // Start date (YYYYMMDDTHHMMSSZ)
-          if (!title || !date) return;
+      events.forEach(event => {
+        if (count >= 5) return;  // Stop once 5 events are shown
 
-          const raw = date[1].trim();
-          const month = raw.substring(4, 6);
-          const day = raw.substring(6, 8);
-          const eventDate = `${month}-${day}`;  // Format as MM-DD
+        const title = event.match(/SUMMARY:(.*)/);
+        const date = event.match(/DTSTART[^:]*:(.*)/);  // Start date (YYYYMMDDTHHMMSSZ)
+        if (!title || !date) return;
 
-          // Show only upcoming events
-          if (eventDate >= currentDate) {
-            const item = document.createElement("li");
-            item.textContent = `${eventDate} - ${title[1]}`;  // Show event date and title
-            list.appendChild(item);
-            count++;  // Increment count after displaying an event
+        const raw = date[1].trim();
+        const year = raw.substring(0, 4);
+        const month = raw.substring(4, 6);
+        const day = raw.substring(6, 8);
+        const hour = raw.substring(8, 10);  // Extract hour
+        const minute = raw.substring(10, 12);  // Extract minute
+        const eventDate = `${month}-${day}`;  // Format as MM-DD
+        const eventTime = `${hour}:${minute}`;  // Format the time (HH:MM)
+
+        // Check if the event is in the current or next month
+        if ((parseInt(month) - 1 === currentMonth || parseInt(month) - 1 === nextMonth) && eventDate >= currentDate) {
+          upcomingEvents.push({ title: title[1], date: eventDate, time: eventTime, month: parseInt(month) });
+        }
+      });
+
+      // Sort events by date
+      upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      // If there are fewer than 5 events, add events from the next month
+      let eventsToShow = upcomingEvents.slice(0, 5);
+
+      // If we don't have enough events from this month, fill the remaining ones with next month
+      if (eventsToShow.length < 5) {
+        const remaining = 5 - eventsToShow.length;
+        upcomingEvents.forEach(event => {
+          if (eventsToShow.length < 5 && event.month === nextMonth) {
+            eventsToShow.push(event);
           }
         });
-      })
-      .catch(error => {
-        console.error("Error fetching calendar events:", error);
-        const list = document.getElementById("calendar");
-        list.innerHTML = "<li>Unable to load events.</li>";
+      }
+
+      // Display the next 5 upcoming events
+      eventsToShow.forEach(event => {
+        const item = document.createElement("li");
+        item.textContent = `${event.date} - ${event.title} at ${event.time}`;  // Show time next to event
+        list.appendChild(item);
+        count++;  // Increment count after displaying an event
       });
+    })
+    .catch(error => {
+      console.error("Error fetching calendar events:", error);
+      const list = document.getElementById("calendar");
+      list.innerHTML = "<li>Unable to load events.</li>";
+    });
+</script>
 
     // Weather Logic (simplified version)
     fetch("https://wttr.in/Gateshead?format=j1")
