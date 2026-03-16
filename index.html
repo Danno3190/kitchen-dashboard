@@ -191,38 +191,40 @@ data.current_condition[0].weatherDesc[0].value;
 
 <script>
 
-const url="https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";
+<script>
+const url="PASTE-YOUR-ICLOUD-LINK-HERE";
 
-fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
-.then(r=>r.text())
-.then(data=>{
-  const events=data.split("BEGIN:VEVENT");
-  const list=document.getElementById("calendar");
+fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+.then(response => response.text())
+.then(data => {
+  const events = data.split("BEGIN:VEVENT");
+  const list = document.getElementById("calendar");
+  
+  let futureEvents = [];
 
-  let futureEvents=[];
+  events.forEach(event => {
+    let title = event.match(/SUMMARY:(.*)/);
+    let date = event.match(/DTSTART[^:]*:(.*)/);
 
-  events.forEach(event=>{
-    let title=event.match(/SUMMARY:(.*)/);
-    let date=event.match(/DTSTART[^:]*:(.*)/);
+    if (!title || !date) return;
 
-    if(!title || !date) return;
-
-    const raw=date[1].trim();
+    const raw = date[1].trim();
     const year = raw.substring(0, 4);
     const month = raw.substring(4, 6);
     const day = raw.substring(6, 8);
 
     const eventDate = new Date(year, month - 1, day);
-    if(eventDate < new Date().setHours(0, 0, 0, 0)) return;
+
+    if (eventDate < new Date().setHours(0, 0, 0, 0)) return; // Ignore past events
 
     futureEvents.push({
       date: eventDate,
       title: title[1],
-      display: `${day}/${month} - ${title[1]}`,
+      display: `${day}/${month} - ${title[1]}`
     });
   });
 
-  futureEvents.sort((a, b) => a.date - b.date);
+  futureEvents.sort((a, b) => a.date - b.date); // Sort by date
 
   futureEvents.slice(0, 5).forEach(event => {
     let item = document.createElement("li");
@@ -232,6 +234,7 @@ fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
     list.appendChild(item);
   });
 });
+</script>
 
 </script>
 
