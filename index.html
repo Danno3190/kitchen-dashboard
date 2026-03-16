@@ -53,6 +53,20 @@
     #weatherDesc {
       font-size: 14px;
     }
+
+    #calendar {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#calendar li {
+  margin: 10px 0;
+  font-size: 16px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+}
   </style>
 </head>
 <body>
@@ -171,38 +185,47 @@
     renderShoppingList();  // Initial render of the shopping list
   </script>
 
-  <script>
-    // Calendar Fetch Logic
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
+ <script>
+  const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
 
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-      .then(response => response.text())
-      .then(data => {
-        const events = data.split("BEGIN:VEVENT");
-        const list = document.getElementById("calendar");
-        list.innerHTML = '';  // Clear current events
+  fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+    .then(response => response.text())
+    .then(data => {
+      const events = data.split("BEGIN:VEVENT");
+      const list = document.getElementById("calendar");
+      list.innerHTML = '';  // Clear current events
 
-        events.forEach(event => {
-          const title = event.match(/SUMMARY:(.*)/);
-          const date = event.match(/DTSTART[^:]*:(.*)/);
-          if (!title || !date) return;
+      let count = 0;  // Track number of events displayed
+      const today = new Date();  // Get today's date
+      const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
 
-          const raw = date[1].trim();
-          const year = raw.substring(0, 4);
-          const month = raw.substring(4, 6);
-          const day = raw.substring(6, 8);
+      events.forEach(event => {
+        if (count >= 5) return;  // Stop once 5 events are shown
 
+        const title = event.match(/SUMMARY:(.*)/);
+        const date = event.match(/DTSTART[^:]*:(.*)/);
+        if (!title || !date) return;
+
+        const raw = date[1].trim();
+        const year = raw.substring(0, 4);
+        const month = raw.substring(4, 6);
+        const day = raw.substring(6, 8);
+        const eventDate = `${year}-${month}-${day}`;
+
+        if (eventDate >= currentDate) {  // Only show upcoming events
           const item = document.createElement("li");
           item.textContent = `${day}/${month} - ${title[1]}`;
           list.appendChild(item);
-        });
-      })
-      .catch(error => {
-        console.error("Error fetching calendar events:", error);
-        const list = document.getElementById("calendar");
-        list.innerHTML = "<li>Unable to load events.</li>";
+          count++;  // Increment count after displaying an event
+        }
       });
-  </script>
+    })
+    .catch(error => {
+      console.error("Error fetching calendar events:", error);
+      const list = document.getElementById("calendar");
+      list.innerHTML = "<li>Unable to load events.</li>";
+    });
+</script>
 
   <script>
     // Weather Data Fetching
