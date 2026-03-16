@@ -94,106 +94,94 @@
 
   </div>
 
+  <!-- Scripts -->
   <script>
-const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your actual iCloud calendar URL
+    // Calendar
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your actual iCloud calendar URL
+    
+    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+    .then(response => response.text())
+    .then(data => {
+      const events = data.split("BEGIN:VEVENT");
+      const list = document.getElementById("calendar");
 
-fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-.then(response => response.text())
-.then(data => {
-  const events = data.split("BEGIN:VEVENT");
-  const list = document.getElementById("calendar");
+      events.forEach(event => {
+        let title = event.match(/SUMMARY:(.*)/);
+        let date = event.match(/DTSTART[^:]*:(.*)/);
 
-  events.forEach(event => {
-    let title = event.match(/SUMMARY:(.*)/);
-    let date = event.match(/DTSTART[^:]*:(.*)/);
+        if (!title || !date) return;
 
-    if (!title || !date) return;
+        const raw = date[1].trim();
+        const year = raw.substring(0, 4);
+        const month = raw.substring(4, 6);
+        const day = raw.substring(6, 8);
 
-    const raw = date[1].trim();
-    const year = raw.substring(0, 4);
-    const month = raw.substring(4, 6);
-    const day = raw.substring(6, 8);
+        const eventDate = new Date(year, month - 1, day);
 
-    const eventDate = new Date(year, month - 1, day);
+        const item = document.createElement("li");
+        item.textContent = `${day}/${month} - ${title[1]}`;
+        list.appendChild(item);
+      });
+    })
+    .catch(error => console.error("Error fetching calendar events: ", error));
 
-    const item = document.createElement("li");
-    item.textContent = `${day}/${month} - ${title[1]}`;
-    list.appendChild(item);
-  });
-})
-.catch(error => console.error("Error fetching calendar events: ", error));
-<script>
-// Load shopping list from localStorage
-let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
+    // Shopping List
+    let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
 
-function renderShoppingList() {
-  const list = document.getElementById("shoppingList");
-  list.innerHTML = ''; // Clear the list
+    function renderShoppingList() {
+      const list = document.getElementById("shoppingList");
+      list.innerHTML = '';
+      shoppingList.forEach((item, index) => {
+        const li = document.createElement("li");
 
-  shoppingList.forEach((item, index) => {
-    const li = document.createElement("li");
+        // Mark as checked or unchecked
+        li.innerHTML = `<input type="checkbox" ${item.done ? "checked" : ""} onclick="toggleItem(${index})"> ${item.name} 
+        <button onclick="deleteItem(${index})" style="margin-left: 10px; background-color: red; color: white;">❌</button>`;
+        list.appendChild(li);
+      });
 
-    // Mark as checked or unchecked
-    li.innerHTML = `<input type="checkbox" ${item.done ? "checked" : ""} onclick="toggleItem(${index})"> ${item.name} 
-    <button onclick="deleteItem(${index})" style="margin-left: 10px; background-color: red; color: white;">❌</button>`;
-    list.appendChild(li);
-  });
-
-  // Save the shopping list to localStorage
-  localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-}
-
-function addShoppingItem() {
-  const newItem = document.getElementById("newShoppingItem").value;
-
-  if (newItem.trim()) {
-    shoppingList.push({ name: newItem, done: false });
-    renderShoppingList();
-    document.getElementById("newShoppingItem").value = '';
-  }
-}
-
-function toggleItem(index) {
-  shoppingList[index].done = !shoppingList[index].done;
-  renderShoppingList();
-}
-
-function deleteItem(index) {
-  shoppingList.splice(index, 1);
-  renderShoppingList();
-}
-
-renderShoppingList(); // Initial render of the shopping list
-<script>
-// Load saved meals from localStorage
-function loadMeals() {
-  const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};
-
-  document.querySelectorAll('.meal').forEach(meal => {
-    const day = meal.dataset.day;
-    if (savedMeals[day]) {
-      meal.innerText = savedMeals[day];
+      // Save the shopping list to localStorage
+      localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
     }
-  });
-}
 
-// Save changes made to meals into localStorage
-function saveMeals() {
-  const meals = {};
-  document.querySelectorAll('.meal').forEach(meal => {
-    const day = meal.dataset.day;
-    meals[day] = meal.innerText;
-  });
-  localStorage.setItem('mealPlan', JSON.stringify(meals));
-}
+    function addShoppingItem() {
+      const newItem = document.getElementById("newShoppingItem").value;
 
-// Automatically save meals whenever edited
-document.querySelectorAll('.meal').forEach(meal => {
-  meal.addEventListener('blur', saveMeals); // Save on blur (when focus leaves the element)
-});
+      if (newItem.trim()) {
+        shoppingList.push({ name: newItem, done: false });
+        renderShoppingList();
+        document.getElementById("newShoppingItem").value = '';
+      }
+    }
 
-// Load saved meals on page load
-loadMeals();
-</script>
+    function toggleItem(index) {
+      shoppingList[index].done = !shoppingList[index].done;
+      renderShoppingList();
+    }
+
+    function deleteItem(index) {
+      shoppingList.splice(index, 1);
+      renderShoppingList();
+    }
+
+    renderShoppingList(); // Initial render of the shopping list
+
+    // Meal Plan
+    const today = new Date().getDay();
+    document.querySelectorAll(".meal").forEach(meal => {
+      if (parseInt(meal.dataset.day) === today) {
+        meal.classList.add("todayMeal");
+      }
+    });
+
+    // Weather
+    fetch("https://wttr.in/?format=j1")
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById("weatherTemp").textContent = `${data.current_condition[0].temp_C}°C`;
+      document.getElementById("weatherDesc").textContent = data.current_condition[0].weatherDesc[0].value;
+    });
+
+  </script>
 </body>
 </html>
