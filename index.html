@@ -1,77 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendar Test</title>
-  <style>
-    body {
-      background-color: #2f2f2f;
-      color: white;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    
-    #calendar li {
-      margin: 10px 0;
-      font-size: 16px;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 8px;
-    }
-  </style>
-</head>
-<body>
+const url = "
+https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace this with your actual iCloud calendar URL
 
-  <div class="card">
-    <h2>Calendar</h2>
-    <ul id="calendar"></ul>
-  </div>
+// CORS Anywhere (you may need to enable the CORS proxy)
+fetch("https://cors-anywhere.herokuapp.com/" + encodeURIComponent(url))
+  .then(response => response.text())  // Process the response as text
+  .then(data => {
+    // Split the iCalendar data into individual events
+    const events = data.split("BEGIN:VEVENT");
+    const list = document.createElement("ul");
+    document.body.appendChild(list);  // Append list to body
 
-  <script>
-    const testUrl = "https://www.google.com/calendar/ical/your-calendar-id/basic.ics";  // Test Google Calendar URL
+    let count = 0;  // Track number of events displayed
+    const today = new Date();  // Get today's date
+    const currentDate = today.toISOString().split("T")[0];  // Format today's date as YYYY-MM-DD
 
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-      .then(response => response.text())
-      .then(data => {
-        const events = data.split("BEGIN:VEVENT");
-        const list = document.getElementById("calendar");
-        list.innerHTML = '';  // Clear current events
+    const eventArray = []; // Store parsed events here
 
-        let count = 0;  // Track number of events displayed
-        const today = new Date();  // Get today's date
-        const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
-        const currentMonth = today.getMonth();  // Get the current month (0 = January, 1 = February, etc.)
-        const nextMonth = (currentMonth + 1) % 12;  // Get next month
+    events.forEach(event => {
+      const title = event.match(/SUMMARY:(.*)/);  // Extract event title
+      const date = event.match(/DTSTART[^:]*:(.*)/);  // Extract event start date (YYYYMMDDTHHMMSSZ)
 
-        events.forEach(event => {
-          if (count >= 5) return;  // Stop once 5 events are shown
+      if (!title || !date) return;  // Skip events that don't have a title or date
 
-          const title = event.match(/SUMMARY:(.*)/);
-          const date = event.match(/DTSTART[^:]*:(.*)/);  // Start date (YYYYMMDDTHHMMSSZ)
-          if (!title || !date) return;
+      const raw = date[1].trim();
+      const month = raw.substring(4, 6);  // Get month
+      const day = raw.substring(6, 8);    // Get day
+      const eventDate = `${raw.substring(0, 4)}-${month}-${day}`; // Format as YYYY-MM-DD
 
-          const raw = date[1].trim();
-          const month = raw.substring(4, 6);
-          const day = raw.substring(6, 8);
-          const eventDate = `${month}-${day}`;  // Format as MM-DD
+      // Only display upcoming events
+      if (eventDate >= currentDate) {
+        eventArray.push({ date: eventDate, title: title[1] }); // Store the event
+        count++;
+      }
+    });
 
-          // Show only upcoming events
-          if (eventDate >= currentDate) {
-            const item = document.createElement("li");
-            item.textContent = `${eventDate} - ${title[1]}`;  // Show event date and title
-            list.appendChild(item);
-            count++;  // Increment count after displaying an event
-          }
-        });
-      })
-      .catch(error => {
-        console.error("Error fetching calendar events:", error);
-        const list = document.getElementById("calendar");
-        list.innerHTML = "<li>Unable to load events.</li>";
-      });
-  </script>
+    // Sort events by date (ascending order)
+    eventArray.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-</body>
-</html>
+    // Display the sorted events (only 5)
+    eventArray.slice(0, 5).forEach(event => {
+      const item = document.createElement("li");
+      item.textContent = `${event.date} - ${event.title}`; // Show event date and title
+      list.appendChild(item);
+    });
+  })
+  .catch(error => {
+    console.error("Error fetching calendar events:", error);  // Log errors
+    const list = document.createElement("ul");
+    list.innerHTML = "<li>Unable to load events.</li>";  // Display fallback message
+    document.body.appendChild(list);  // Append the list to the page
+  });
