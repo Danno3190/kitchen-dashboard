@@ -187,46 +187,58 @@
   </script>
 
   <script>
-    // Calendar Fetch Logic
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
+const url = "YOUR_ICALENDAR_URL";  // Replace with your iCloud calendar URL
 
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-      .then(response => response.text())
-      .then(data => {
-        const events = data.split("BEGIN:VEVENT");
-        const list = document.getElementById("calendar");
-        list.innerHTML = '';  // Clear current events
+// Fetch the iCalendar data using the AllOrigins proxy to bypass CORS
+fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+  .then(response => response.text())  // Process the response as text
+  .then(data => {
+    // Split the data into individual events
+    const events = data.split("BEGIN:VEVENT");
+    const list = document.createElement("ul");  // Create a list element
+    document.body.appendChild(list);  // Append the list to the page
 
-        let count = 0;  // Track number of events displayed
-        const today = new Date();  // Get today's date
-        const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
+    let count = 0;  // Track number of events displayed
+    const today = new Date();  // Get today's date
+    const currentDate = today.toISOString().split("T")[0];  // Format today's date as YYYY-MM-DD
 
-        events.forEach(event => {
-          if (count >= 5) return;  // Stop once 5 events are shown
+    const eventArray = [];  // Store parsed events here
 
-          const title = event.match(/SUMMARY:(.*)/);
-          const date = event.match(/DTSTART[^:]*:(.*)/);
-          if (!title || !date) return;
+    // Loop through each event in the calendar data
+    events.forEach(event => {
+      const title = event.match(/SUMMARY:(.*)/);  // Extract the event title
+      const date = event.match(/DTSTART[^:]*:(.*)/);  // Extract the event start date
 
-          const raw = date[1].trim();
-          const year = raw.substring(0, 4);
-          const month = raw.substring(4, 6);
-          const day = raw.substring(6, 8);
-          const eventDate = `${year}-${month}-${day}`;
+      if (!title || !date) return;  // Skip events that don't have a title or date
 
-          if (eventDate >= currentDate) {  // Only show upcoming events
-            const item = document.createElement("li");
-            item.textContent = `${day}/${month} - ${title[1]}`;
-            list.appendChild(item);
-            count++;  // Increment count after displaying an event
-          }
-        });
-      })
-      .catch(error => {
-        console.error("Error fetching calendar events:", error);
-        const list = document.getElementById("calendar");
-        list.innerHTML = "<li>Unable to load events.</li>";
-      });
+      const raw = date[1].trim();
+      const month = raw.substring(4, 6);  // Get the month part of the date
+      const day = raw.substring(6, 8);    // Get the day part of the date
+      const eventDate = `${raw.substring(0, 4)}-${month}-${day}`; // Format the event date as YYYY-MM-DD
+
+      // Only display upcoming events that are from today or later
+      if (eventDate >= currentDate) {
+        eventArray.push({ date: eventDate, title: title[1] });  // Store the event in the array
+        count++;  // Increment the count after displaying an event
+      }
+    });
+
+    // Sort events by date (ascending order)
+    eventArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Display the sorted events (only 5)
+    eventArray.slice(0, 5).forEach(event => {
+      const item = document.createElement("li");
+      item.textContent = `${event.date} - ${event.title}`;  // Show event date and title
+      list.appendChild(item);  // Append the event to the list
+    });
+  })
+  .catch(error => {
+    console.error("Error fetching calendar events:", error);  // Log any errors to the console
+    const list = document.createElement("ul");
+    list.innerHTML = "<li>Unable to load events.</li>";  // Display a fallback message if the events can't be loaded
+    document.body.appendChild(list);  // Append the list to the page
+  });
   </script>
 
   <script>
