@@ -5,162 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kitchen Dashboard</title>
   <style>
-    /* Your other styles here */
+    /* Simple CSS for layout */
     body {
-      background-color: #2f2f2f;
-      color: white;
       font-family: Arial, sans-serif;
+      background-color: #333;
+      color: #fff;
       margin: 0;
       padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
     }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
     .card {
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: #222;
       padding: 20px;
-      border-radius: 10px;
+      margin: 10px;
+      border-radius: 5px;
+      width: 250px;
     }
-
     h2 {
-      font-size: 24px;
-      margin-bottom: 10px;
+      margin-top: 0;
     }
-
-    .meal {
-      font-size: 20px;
-      margin: 10px 0;
-      cursor: pointer;
-    }
-
-    /* Highlight current day */
-    .todayMeal {
-      background-color: rgba(255, 255, 255, 0.3);  /* Light highlight */
-      padding: 6px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-
-    #weatherTemp {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    #weatherDesc {
-      font-size: 14px;
-    }
-
-    /* Calendar CSS */
-    #calendar {
-      list-style-type: none;
+    ul {
+      list-style: none;
       padding: 0;
-      margin: 0;
     }
-
-    #calendar li {
-      margin: 10px 0;
-      font-size: 16px;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 8px;
+    li {
+      margin: 5px 0;
+    }
+    .todayMeal {
+      background-color: #4CAF50; /* Highlight today's meal */
+    }
+    input {
+      margin-top: 10px;
+      padding: 5px;
+      width: 200px;
+    }
+    button {
+      padding: 5px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
     }
   </style>
 </head>
 <body>
-
-  <div class="grid">
-    <!-- Calendar Section -->
-    <div class="card">
-      <h2>Calendar</h2>
-      <ul id="calendar"></ul>
-    </div>
-
-    <!-- Meal Plan Section -->
-    <div class="card">
-      <h2>Meal Plan</h2>
-      <div id="meals">
-        <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
-        <div data-day="2" contenteditable="true" class="meal">Tue – Mams</div>
-        <div data-day="3" contenteditable="true" class="meal">Wed – Dinner</div>
-        <div data-day="4" contenteditable="true" class="meal">Thu – Burgers</div>
-        <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
-        <div data-day="6" contenteditable="true" class="meal">Sat – Mams</div>
-        <div data-day="0" contenteditable="true" class="meal">Sun – Dinner</div>
-      </div>
-    </div>
-
-    <!-- Shopping List Section -->
-    <div class="card">
-      <h2>Shopping List</h2>
-      <ul id="shoppingList"></ul>
-      <input id="newShoppingItem" placeholder="Add Item" style="width: 80%; padding: 8px;">
-      <button onclick="addShoppingItem()">Add</button>
-    </div>
-
-    <!-- Weather Section -->
-    <div class="card">
-      <h2>Weather</h2>
-      <div id="weatherTemp"></div>
-      <div id="weatherDesc"></div>
-    </div>
+  <div class="card">
+    <h2>Calendar</h2>
+    <ul id="calendar"></ul>
   </div>
 
-  <!-- Commented out the JavaScript temporarily for troubleshooting -->
+  <div class="card">
+    <h2>Meal Plan</h2>
+    <ul id="mealPlan">
+      <li data-day="0">Mon - Pasta</li>
+      <li data-day="1">Tue - Mams</li>
+      <li data-day="2">Wed - Dinner</li>
+      <li data-day="3">Thu - Burgers</li>
+      <li data-day="4">Fri - Pizza</li>
+      <li data-day="5">Sat - Mams</li>
+      <li data-day="6">Sun - Dinner</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Shopping List</h2>
+    <input type="text" id="newShoppingItem" placeholder="Add Item">
+    <button onclick="addShoppingItem()">Add</button>
+    <ul id="shoppingList"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Weather</h2>
+    <div id="weatherTemp">Loading...</div>
+    <div id="weatherDesc">Loading...</div>
+  </div>
+
   <script>
-    // Meal Plan Saving and Loading
-    function loadMeals() {
-      const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        if (savedMeals[day]) {
-          meal.innerText = savedMeals[day];
-        }
-      });
-    }
-
-    function saveMeals() {
-      const meals = {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        meals[day] = meal.innerText;
-      });
-      localStorage.setItem('mealPlan', JSON.stringify(meals));
-    }
-
-    document.querySelectorAll('.meal').forEach(meal => {
-      meal.addEventListener('blur', saveMeals);
-    });
-
-    loadMeals();  // Load meals when the page is opened
-
-    // Highlight current day in meal plan
-    const today = new Date().getDay();  // Get the current day (0 = Sunday, 1 = Monday, etc.)
-
+    // Sample JavaScript for Meal Plan, Shopping List, and Weather
+    const today = new Date().getDay();
     document.querySelectorAll('.meal').forEach(meal => {
       if (parseInt(meal.dataset.day) === today) {
-        meal.classList.add('todayMeal');  // Add class to highlight the current day
+        meal.classList.add('todayMeal');
       }
     });
-  </script>
 
-  <script>
-    // Shopping List Logic
+    // Shopping List logic
     let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
+    const shoppingListElement = document.getElementById("shoppingList");
 
     function renderShoppingList() {
-      const list = document.getElementById("shoppingList");
-      list.innerHTML = '';
+      shoppingListElement.innerHTML = "";
       shoppingList.forEach((item, index) => {
         const li = document.createElement("li");
-        li.innerHTML = `<input type="checkbox" ${item.done ? "checked" : ""} onclick="toggleItem(${index})"> ${item.name} 
-        <button onclick="deleteItem(${index})" style="margin-left: 10px; background-color: red; color: white;">❌</button>`;
-        list.appendChild(li);
+        li.innerHTML = `${item.name} <button onclick="deleteItem(${index})">Delete</button>`;
+        shoppingListElement.appendChild(li);
       });
-
       localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
     }
 
@@ -169,13 +109,8 @@
       if (newItem.trim()) {
         shoppingList.push({ name: newItem, done: false });
         renderShoppingList();
-        document.getElementById("newShoppingItem").value = '';
       }
-    }
-
-    function toggleItem(index) {
-      shoppingList[index].done = !shoppingList[index].done;
-      renderShoppingList();
+      document.getElementById("newShoppingItem").value = "";
     }
 
     function deleteItem(index) {
@@ -183,73 +118,44 @@
       renderShoppingList();
     }
 
-    renderShoppingList();  // Initial render of the shopping list
-  </script>
+    renderShoppingList();
 
-  <script>
-const url = "YOUR_ICALENDAR_URL";  // Replace with your iCloud calendar URL
-
-// Fetch the iCalendar data using the AllOrigins proxy to bypass CORS
-fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-  .then(response => response.text())  // Process the response as text
-  .then(data => {
-    // Split the data into individual events
-    const events = data.split("BEGIN:VEVENT");
-    const list = document.createElement("ul");  // Create a list element
-    document.body.appendChild(list);  // Append the list to the page
-
-    let count = 0;  // Track number of events displayed
-    const today = new Date();  // Get today's date
-    const currentDate = today.toISOString().split("T")[0];  // Format today's date as YYYY-MM-DD
-
-    const eventArray = [];  // Store parsed events here
-
-    // Loop through each event in the calendar data
-    events.forEach(event => {
-      const title = event.match(/SUMMARY:(.*)/);  // Extract the event title
-      const date = event.match(/DTSTART[^:]*:(.*)/);  // Extract the event start date
-
-      if (!title || !date) return;  // Skip events that don't have a title or date
-
-      const raw = date[1].trim();
-      const month = raw.substring(4, 6);  // Get the month part of the date
-      const day = raw.substring(6, 8);    // Get the day part of the date
-      const eventDate = `${raw.substring(0, 4)}-${month}-${day}`; // Format the event date as YYYY-MM-DD
-
-      // Only display upcoming events that are from today or later
-      if (eventDate >= currentDate) {
-        eventArray.push({ date: eventDate, title: title[1] });  // Store the event in the array
-        count++;  // Increment the count after displaying an event
-      }
-    });
-
-    // Sort events by date (ascending order)
-    eventArray.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    // Display the sorted events (only 5)
-    eventArray.slice(0, 5).forEach(event => {
-      const item = document.createElement("li");
-      item.textContent = `${event.date} - ${event.title}`;  // Show event date and title
-      list.appendChild(item);  // Append the event to the list
-    });
-  })
-  .catch(error => {
-    console.error("Error fetching calendar events:", error);  // Log any errors to the console
-    const list = document.createElement("ul");
-    list.innerHTML = "<li>Unable to load events.</li>";  // Display a fallback message if the events can't be loaded
-    document.body.appendChild(list);  // Append the list to the page
-  });
-  </script>
-
-  <script>
-    // Weather Data Fetching
-    fetch("https://wttr.in/Gateshead?format=j1")
-      .then(response => response.json())
+    // Weather API (add actual weather API code here)
+    fetch("https://wttr.in/?format=j1")
+      .then(r => r.json())
       .then(data => {
         document.getElementById("weatherTemp").textContent = `${data.current_condition[0].temp_C}°C`;
         document.getElementById("weatherDesc").textContent = data.current_condition[0].weatherDesc[0].value;
+      })
+      .catch(() => {
+        document.getElementById("weatherTemp").textContent = "Weather not available";
+        document.getElementById("weatherDesc").textContent = "";
+      });
+
+    // Calendar (Test URL)
+    const calendarUrl = "https://www.google.com/calendar/ical/your-calendar-id/basic.ics";  // Use actual calendar URL
+    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(calendarUrl))
+      .then(response => response.text())
+      .then(data => {
+        const events = data.split("BEGIN:VEVENT");
+        const calendarList = document.getElementById("calendar");
+
+        events.forEach(event => {
+          const title = event.match(/SUMMARY:(.*)/);
+          const date = event.match(/DTSTART[^:]*:(.*)/);
+          if (title && date) {
+            const raw = date[1].trim();
+            const eventDate = `${raw.substring(0, 4)}-${raw.substring(4, 6)}-${raw.substring(6, 8)}`;
+            const li = document.createElement("li");
+            li.textContent = `${eventDate} - ${title[1]}`;
+            calendarList.appendChild(li);
+          }
+        });
+      })
+      .catch(() => {
+        const calendarList = document.getElementById("calendar");
+        calendarList.innerHTML = "<li>Unable to load events.</li>";
       });
   </script>
-
 </body>
 </html>
