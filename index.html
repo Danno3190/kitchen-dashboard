@@ -169,7 +169,7 @@
       const date = new Date();
       const options = { 
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
-        hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false 
+        hour: 'numeric', minute: 'numeric', hour12: true // 12-hour format
       };
       const dateTime = date.toLocaleString('en-GB', options);
       document.getElementById("dateTime").textContent = dateTime;
@@ -217,7 +217,6 @@
     // Shopping List Logic
     let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
 
-    // Function to render the shopping list
     function renderShoppingList() {
       const list = document.getElementById("shoppingList");
       list.innerHTML = ''; // Clear previous list
@@ -256,7 +255,6 @@
       localStorage.setItem("shoppingList", JSON.stringify(shoppingList)); // Save to localStorage
     }
 
-    // Function to add shopping item
     function addShoppingItem() {
       const newItem = document.getElementById("newShoppingItem").value;
       if (newItem.trim()) {
@@ -266,13 +264,11 @@
       }
     }
 
-    // Function to toggle the "done" status of an item
     function toggleItem(index) {
       shoppingList[index].done = !shoppingList[index].done;
       renderShoppingList(); // Re-render the list after toggling the item
     }
 
-    // Function to delete an item from the shopping list
     function deleteItem(index) {
       shoppingList.splice(index, 1);
       renderShoppingList(); // Re-render the list after deletion
