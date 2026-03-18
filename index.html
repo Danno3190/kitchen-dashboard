@@ -11,13 +11,12 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
-      background-image: url('https://drive.google.com/uc?export=view&id=1RsXL8T3P_I5lmLClzoN81qY1Rq8cpfmU'); /* Use the updated Google Drive link */
+      background-image: url('https://drive.google.com/uc?export=view&id=1RsXL8T3P_I5lmLClzoN81qY1Rq8cpfmU'); /* Replace with your Google Drive image link */
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
     }
 
-    /* Heading section style */
     #heading {
       text-align: center;
       margin-bottom: 20px;
@@ -28,7 +27,6 @@
       margin-top: 10px;
     }
 
-    /* Grid for layout */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -36,7 +34,6 @@
       margin-top: 20px;
     }
 
-    /* Card for each section */
     .card {
       background-color: rgba(0, 0, 0, 0.6);
       padding: 20px;
@@ -48,7 +45,6 @@
       margin-bottom: 10px;
     }
 
-    /* Meal Plan */
     .meal {
       font-size: 20px;
       margin: 10px 0;
@@ -56,13 +52,12 @@
     }
 
     .todayMeal {
-      background-color: rgba(255, 255, 255, 0.3); 
+      background-color: rgba(255, 255, 255, 0.3);
       padding: 6px;
       border-radius: 10px;
       font-weight: bold;
     }
 
-    /* Weather */
     #weatherTemp {
       font-size: 18px;
       font-weight: bold;
@@ -72,7 +67,11 @@
       font-size: 14px;
     }
 
-    /* Calendar */
+    #weatherLocation {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
     #calendar {
       list-style-type: none;
       padding: 0;
@@ -87,7 +86,6 @@
       border-radius: 8px;
     }
 
-    /* Shopping List */
     #shoppingList {
       list-style-type: none;
       padding: 0;
@@ -124,7 +122,6 @@
       margin-right: 10px;
     }
 
-    /* Header */
     #heading h1 {
       font-size: 36px;
       margin: 0;
@@ -135,10 +132,9 @@
       margin: 0;
     }
 
-    /* Responsive Design for iPad Mini */
     @media (max-width: 768px) {
       .grid {
-        grid-template-columns: 1fr; /* Single column layout for smaller screens */
+        grid-template-columns: 1fr;
       }
 
       #heading h1 {
@@ -169,20 +165,17 @@
 </head>
 <body>
 
-  <!-- Heading Section -->
   <div id="heading">
     <h1>The Grey's Kitchen</h1>
     <h2 id="dateTime"></h2>
   </div>
 
   <div class="grid">
-    <!-- Calendar Section -->
     <div class="card">
       <h2>Calendar</h2>
       <ul id="calendar"></ul>
     </div>
 
-    <!-- Meal Plan Section -->
     <div class="card">
       <h2>Meal Plan</h2>
       <div id="meals">
@@ -196,7 +189,6 @@
       </div>
     </div>
 
-    <!-- Shopping List Section -->
     <div class="card">
       <h2>Shopping List</h2>
       <ul id="shoppingList"></ul>
@@ -204,17 +196,15 @@
       <button onclick="addShoppingItem()">Add</button>
     </div>
 
-    <!-- Weather Section -->
     <div class="card">
       <h2>Weather in Gateshead</h2>
       <div id="weatherTemp"></div>
       <div id="weatherDesc"></div>
-      <div id="forecast"></div> <!-- Additional weather forecast info -->
     </div>
   </div>
 
   <script>
-    // Date and Time (12-hour format)
+    // Date and Time (12-hour format with AM/PM)
     function updateDateTime() {
       const date = new Date();
       const hours = date.getHours();
@@ -228,30 +218,79 @@
     setInterval(updateDateTime, 1000); // Update every second
     updateDateTime(); // Initial call to set date/time
 
-    // Weather Data Fetching using OpenWeatherMap API
-    const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
-    const city = "Gateshead";  // Replace with your desired city
-    const units = "metric";  // For temperature in Celsius
-
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${units}&appid=${apiKey}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data && data.main && data.weather) {
-          const temp = data.main.temp;  // Temperature in Celsius
-          const weatherDesc = data.weather[0].description;  // Weather description
-
-          document.getElementById("weatherTemp").textContent = `${temp}°C`;
-          document.getElementById("weatherDesc").textContent = weatherDesc;
-        } else {
-          document.getElementById("weatherTemp").textContent = "Weather not available";
-          document.getElementById("weatherDesc").textContent = "";
+    // Meal Plan Saving and Loading
+    function loadMeals() {
+      const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};
+      document.querySelectorAll('.meal').forEach(meal => {
+        const day = meal.dataset.day;
+        if (savedMeals[day]) {
+          meal.innerText = savedMeals[day];
         }
-      })
-      .catch(error => {
-        console.error("Error fetching weather data:", error);
-        document.getElementById("weatherTemp").textContent = "Weather not available";
-        document.getElementById("weatherDesc").textContent = "";
       });
+    }
+
+    function saveMeals() {
+      const meals = {};
+      document.querySelectorAll('.meal').forEach(meal => {
+        const day = meal.dataset.day;
+        meals[day] = meal.innerText;
+      });
+      localStorage.setItem('mealPlan', JSON.stringify(meals));
+    }
+
+    document.querySelectorAll('.meal').forEach(meal => {
+      meal.addEventListener('blur', saveMeals);
+    });
+
+    loadMeals();  // Load meals when the page is opened
+
+    // Highlight current day in meal plan
+    const today = new Date().getDay();  // Get the current day (0 = Sunday, 1 = Monday, etc.)
+
+    document.querySelectorAll('.meal').forEach(meal => {
+      if (parseInt(meal.dataset.day) === today) {
+        meal.classList.add('todayMeal');  // Add class to highlight the current day
+      }
+    });
+  </script>
+
+  <script>
+    // Shopping List Logic
+    let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
+
+    function renderShoppingList() {
+      const list = document.getElementById("shoppingList");
+      list.innerHTML = '';
+      shoppingList.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<input type="checkbox" ${item.done ? "checked" : ""} onclick="toggleItem(${index})"> ${item.name} 
+        <button onclick="deleteItem(${index})" style="margin-left: 10px; background-color: red; color: white;">❌</button>`;
+        list.appendChild(li);
+      });
+
+      localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
+    }
+
+    function addShoppingItem() {
+      const newItem = document.getElementById("newShoppingItem").value;
+      if (newItem.trim()) {
+        shoppingList.push({ name: newItem, done: false });
+        renderShoppingList();
+        document.getElementById("newShoppingItem").value = '';
+      }
+    }
+
+    function toggleItem(index) {
+      shoppingList[index].done = !shoppingList[index].done;
+      renderShoppingList();
+    }
+
+    function deleteItem(index) {
+      shoppingList.splice(index, 1);
+      renderShoppingList();
+    }
+
+    renderShoppingList();  // Initial render of the shopping list
   </script>
 
   <script>
@@ -271,7 +310,6 @@
 
         const eventArray = [];
 
-        // Parse each event and add it to an array
         events.forEach(event => {
           const title = event.match(/SUMMARY:(.*)/);
           const date = event.match(/DTSTART[^:]*:(.*)/);
@@ -283,7 +321,7 @@
           const day = raw.substring(6, 8);
           const eventDate = `${year}-${month}-${day}`;
 
-          if (eventDate >= currentDate) {  // Only show upcoming events
+          if (eventDate >= currentDate) {
             eventArray.push({
               date: eventDate,
               title: title[1]
@@ -291,15 +329,11 @@
           }
         });
 
-        // Sort the events by date
         eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
-
-        // Display up to 5 events
         eventArray.slice(0, 5).forEach(event => {
           const item = document.createElement("li");
           item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} - ${event.title}`;
           list.appendChild(item);
-          count++;  // Increment count after displaying an event
         });
       })
       .catch(error => {
