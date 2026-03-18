@@ -30,6 +30,15 @@
       margin-bottom: 10px;
     }
 
+    #weatherTemp {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #weatherDesc {
+      font-size: 14px;
+    }
+
     /* Calendar CSS */
     #calendar {
       list-style-type: none;
@@ -43,15 +52,6 @@
       background-color: rgba(0, 0, 0, 0.5);
       padding: 10px;
       border-radius: 8px;
-    }
-
-    #weatherTemp {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    #weatherDesc {
-      font-size: 14px;
     }
 
     /* Shopping List */
@@ -106,25 +106,9 @@
       font-weight: bold;
     }
 
-    /* Heading style */
-    #heading {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    #dateTime {
-      font-size: 18px;
-      margin-top: 10px;
-    }
   </style>
 </head>
 <body>
-
-  <!-- Heading Section -->
-  <div id="heading">
-    <h1>The Grey's Kitchen</h1>
-    <h2 id="dateTime"></h2>
-  </div>
 
   <div class="grid">
     <!-- Calendar Section -->
@@ -163,15 +147,17 @@
     </div>
   </div>
 
+  <!-- Current Date/Time and Heading -->
+  <div id="heading">
+    <h1>The Grey's Kitchen</h1>
+    <h2 id="dateTime"></h2>
+  </div>
+
   <script>
     // Date and Time (24hr format)
     function updateDateTime() {
       const date = new Date();
-      const options = { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
-        hour: 'numeric', minute: 'numeric', hour12: true // 12-hour format
-      };
-      const dateTime = date.toLocaleString('en-GB', options);
+      const dateTime = `${date.toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
       document.getElementById("dateTime").textContent = dateTime;
     }
     setInterval(updateDateTime, 1000); // Update every second
@@ -217,6 +203,7 @@
     // Shopping List Logic
     let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
 
+    // Function to render the shopping list
     function renderShoppingList() {
       const list = document.getElementById("shoppingList");
       list.innerHTML = ''; // Clear previous list
@@ -255,6 +242,7 @@
       localStorage.setItem("shoppingList", JSON.stringify(shoppingList)); // Save to localStorage
     }
 
+    // Function to add shopping item
     function addShoppingItem() {
       const newItem = document.getElementById("newShoppingItem").value;
       if (newItem.trim()) {
@@ -264,11 +252,13 @@
       }
     }
 
+    // Function to toggle the "done" status of an item
     function toggleItem(index) {
       shoppingList[index].done = !shoppingList[index].done;
       renderShoppingList(); // Re-render the list after toggling the item
     }
 
+    // Function to delete an item from the shopping list
     function deleteItem(index) {
       shoppingList.splice(index, 1);
       renderShoppingList(); // Re-render the list after deletion
@@ -278,7 +268,7 @@
   </script>
 
   <script>
-// Calendar Fetch Logic
+  // Calendar Fetch Logic
 const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
 
 fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
