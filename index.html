@@ -52,7 +52,7 @@
       padding: 10px;
       border-radius: 8px;
       display: flex;
-      justify-content: space-between;
+      align-items: center;
     }
 
     .shoppingItem {
@@ -65,10 +65,15 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      padding: 5px;
     }
 
     .deleteButton:hover {
       background-color: darkred;
+    }
+
+    .checkbox {
+      margin-right: 10px;
     }
   </style>
 </head>
@@ -98,6 +103,15 @@
       shoppingList.forEach((item, index) => {
         const li = document.createElement("li");
 
+        // Create checkbox for marking item as done
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("checkbox");
+        checkbox.checked = item.done;
+        checkbox.onclick = function () {
+          toggleItem(index); // Toggle item done status
+        };
+
         // Create shopping list item and delete button
         const itemText = document.createElement("span");
         itemText.classList.add("shoppingItem");
@@ -110,7 +124,8 @@
           deleteItem(index); // Delete the item
         };
 
-        // Add the item and button to the list item
+        // Add the checkbox, item and button to the list item
+        li.appendChild(checkbox);
         li.appendChild(itemText);
         li.appendChild(deleteButton);
         list.appendChild(li);
@@ -123,10 +138,16 @@
     function addShoppingItem() {
       const newItem = document.getElementById("newShoppingItem").value;
       if (newItem.trim()) {
-        shoppingList.push({ name: newItem });
+        shoppingList.push({ name: newItem, done: false });
         renderShoppingList(); // Re-render the list
         document.getElementById("newShoppingItem").value = ''; // Clear the input field
       }
+    }
+
+    // Function to toggle the "done" status of an item
+    function toggleItem(index) {
+      shoppingList[index].done = !shoppingList[index].done;
+      renderShoppingList(); // Re-render the list after toggling the item
     }
 
     // Function to delete an item from the shopping list
