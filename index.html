@@ -30,15 +30,6 @@
       margin-bottom: 10px;
     }
 
-    #weatherTemp {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    #weatherDesc {
-      font-size: 14px;
-    }
-
     /* Calendar CSS */
     #calendar {
       list-style-type: none;
@@ -52,6 +43,15 @@
       background-color: rgba(0, 0, 0, 0.5);
       padding: 10px;
       border-radius: 8px;
+    }
+
+    #weatherTemp {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #weatherDesc {
+      font-size: 14px;
     }
 
     /* Shopping List */
@@ -106,9 +106,25 @@
       font-weight: bold;
     }
 
+    /* Heading style */
+    #heading {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #dateTime {
+      font-size: 18px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Heading Section -->
+  <div id="heading">
+    <h1>The Grey's Kitchen</h1>
+    <h2 id="dateTime"></h2>
+  </div>
 
   <div class="grid">
     <!-- Calendar Section -->
@@ -147,17 +163,15 @@
     </div>
   </div>
 
-  <!-- Current Date/Time and Heading -->
-  <div id="heading">
-    <h1>The Grey's Kitchen</h1>
-    <h2 id="dateTime"></h2>
-  </div>
-
   <script>
     // Date and Time (24hr format)
     function updateDateTime() {
       const date = new Date();
-      const dateTime = `${date.toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+      const options = { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+        hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false 
+      };
+      const dateTime = date.toLocaleString('en-GB', options);
       document.getElementById("dateTime").textContent = dateTime;
     }
     setInterval(updateDateTime, 1000); // Update every second
