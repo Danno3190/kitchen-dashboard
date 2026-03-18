@@ -5,29 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kitchen Dashboard</title>
   <style>
-    /* Your existing styles here... */
-
-    #newShoppingItem {
-      width: 80%;
-      padding: 8px;
-    }
-
-    button {
-      padding: 8px;
-      background-color: #007BFF;
+    body {
+      background-color: #2f2f2f;
       color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
     }
 
-    button:hover {
-      background-color: #0056b3;
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
+    .card {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #weatherTemp {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #weatherDesc {
+      font-size: 14px;
+    }
+
+    /* Shopping List */
     #shoppingList {
       list-style-type: none;
       padding: 0;
+      margin: 0;
     }
 
     #shoppingList li {
@@ -49,7 +65,6 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      margin-left: 10px;
     }
 
     .deleteButton:hover {
@@ -60,26 +75,6 @@
 <body>
 
   <div class="grid">
-    <!-- Calendar Section -->
-    <div class="card">
-      <h2>Calendar</h2>
-      <ul id="calendar"></ul>
-    </div>
-
-    <!-- Meal Plan Section -->
-    <div class="card">
-      <h2>Meal Plan</h2>
-      <div id="meals">
-        <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
-        <div data-day="2" contenteditable="true" class="meal">Tue – Mams</div>
-        <div data-day="3" contenteditable="true" class="meal">Wed – Dinner</div>
-        <div data-day="4" contenteditable="true" class="meal">Thu – Burgers</div>
-        <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
-        <div data-day="6" contenteditable="true" class="meal">Sat – Mams</div>
-        <div data-day="0" contenteditable="true" class="meal">Sun – Dinner</div>
-      </div>
-    </div>
-
     <!-- Shopping List Section -->
     <div class="card">
       <h2>Shopping List</h2>
@@ -88,25 +83,22 @@
       <button onclick="addShoppingItem()">Add</button>
     </div>
 
-    <!-- Weather Section -->
-    <div class="card">
-      <h2>Weather</h2>
-      <div id="weatherTemp"></div>
-      <div id="weatherDesc"></div>
-    </div>
+    <!-- Other sections (Meal Plan, Calendar, Weather, etc.) -->
   </div>
 
   <script>
     // Shopping List Logic
     let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
 
+    // Function to render the shopping list
     function renderShoppingList() {
       const list = document.getElementById("shoppingList");
-      list.innerHTML = '';
+      list.innerHTML = ''; // Clear previous list
+
       shoppingList.forEach((item, index) => {
         const li = document.createElement("li");
 
-        // Create the shopping list item and delete button
+        // Create shopping list item and delete button
         const itemText = document.createElement("span");
         itemText.classList.add("shoppingItem");
         itemText.textContent = item.name;
@@ -115,7 +107,7 @@
         deleteButton.classList.add("deleteButton");
         deleteButton.textContent = "Delete";
         deleteButton.onclick = function () {
-          deleteItem(index);
+          deleteItem(index); // Delete the item
         };
 
         // Add the item and button to the list item
@@ -124,28 +116,27 @@
         list.appendChild(li);
       });
 
-      localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
+      localStorage.setItem("shoppingList", JSON.stringify(shoppingList)); // Save to localStorage
     }
 
+    // Function to add shopping item
     function addShoppingItem() {
       const newItem = document.getElementById("newShoppingItem").value;
       if (newItem.trim()) {
-        shoppingList.push({ name: newItem, done: false });
-        renderShoppingList();
-        document.getElementById("newShoppingItem").value = ''; // Clear input after adding
+        shoppingList.push({ name: newItem });
+        renderShoppingList(); // Re-render the list
+        document.getElementById("newShoppingItem").value = ''; // Clear the input field
       }
     }
 
+    // Function to delete an item from the shopping list
     function deleteItem(index) {
       shoppingList.splice(index, 1);
-      renderShoppingList();  // Re-render after deleting
+      renderShoppingList(); // Re-render the list after deletion
     }
 
-    renderShoppingList();  // Initial render of the shopping list
-
+    renderShoppingList(); // Initial render of the shopping list
   </script>
-
-  <!-- The rest of your existing scripts (Meal Plan, Weather, Calendar etc.) go here -->
 
 </body>
 </html>
