@@ -160,7 +160,7 @@
 
     <!-- Weather Section -->
     <div class="card">
-      <h2 id="weatherHeading">Weather in Gateshead</h2>
+      <h2>Weather</h2>
       <div id="weatherTemp"></div>
       <div id="weatherDesc"></div>
     </div>
@@ -282,6 +282,61 @@
     }
 
     renderShoppingList(); // Initial render of the shopping list
+  </script>
+
+  <script>
+  // Calendar Fetch Logic
+const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
+
+fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+  .then(response => response.text())
+  .then(data => {
+    const events = data.split("BEGIN:VEVENT");
+    const list = document.getElementById("calendar");
+    list.innerHTML = '';  // Clear current events
+
+    let count = 0;  // Track number of events displayed
+    const today = new Date();  // Get today's date
+    const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
+
+    const eventArray = [];
+
+    // Parse each event and add it to an array
+    events.forEach(event => {
+      const title = event.match(/SUMMARY:(.*)/);
+      const date = event.match(/DTSTART[^:]*:(.*)/);
+      if (!title || !date) return;
+
+      const raw = date[1].trim();
+      const year = raw.substring(0, 4);
+      const month = raw.substring(4, 6);
+      const day = raw.substring(6, 8);
+      const eventDate = `${year}-${month}-${day}`;
+
+      if (eventDate >= currentDate) {  // Only show upcoming events
+        eventArray.push({
+          date: eventDate,
+          title: title[1]
+        });
+      }
+    });
+
+    // Sort the events by date
+    eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
+
+    // Display up to 5 events
+    eventArray.slice(0, 5).forEach(event => {
+      const item = document.createElement("li");
+      item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} - ${event.title}`;
+      list.appendChild(item);
+      count++;  // Increment count after displaying an event
+    });
+  })
+  .catch(error => {
+    console.error("Error fetching calendar events:", error);
+    const list = document.getElementById("calendar");
+    list.innerHTML = "<li>Unable to load events.</li>";
+  });
   </script>
 
   <script>
