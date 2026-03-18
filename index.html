@@ -11,7 +11,7 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
-      background-image: url('https://drive.google.com/uc?export=view&id=https://drive.google.com/file/d/1RsXL8T3P_I5lmLClzoN81qY1Rq8cpfmU/view?usp=drivesdk'); /* Replace with your image link */
+      background-image: url('https://drive.google.com/uc?export=view&id=1RsXL8T3P_I5lmLClzoN81qY1Rq8cpfmU'); /* Use the updated Google Drive link */
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -70,11 +70,6 @@
 
     #weatherDesc {
       font-size: 14px;
-    }
-
-    #weatherLocation {
-      font-size: 16px;
-      margin-bottom: 5px;
     }
 
     /* Calendar */
@@ -211,10 +206,10 @@
 
     <!-- Weather Section -->
     <div class="card">
-      <h2>Weather</h2>
-      <div id="weatherLocation">Weather in Gateshead</div>
+      <h2>Weather in Gateshead</h2>
       <div id="weatherTemp"></div>
       <div id="weatherDesc"></div>
+      <div id="forecast"></div> <!-- Additional weather forecast info -->
     </div>
   </div>
 
@@ -233,79 +228,30 @@
     setInterval(updateDateTime, 1000); // Update every second
     updateDateTime(); // Initial call to set date/time
 
-    // Meal Plan Saving and Loading
-    function loadMeals() {
-      const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        if (savedMeals[day]) {
-          meal.innerText = savedMeals[day];
+    // Weather Data Fetching using OpenWeatherMap API
+    const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
+    const city = "Gateshead";  // Replace with your desired city
+    const units = "metric";  // For temperature in Celsius
+
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${units}&appid=${apiKey}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.main && data.weather) {
+          const temp = data.main.temp;  // Temperature in Celsius
+          const weatherDesc = data.weather[0].description;  // Weather description
+
+          document.getElementById("weatherTemp").textContent = `${temp}°C`;
+          document.getElementById("weatherDesc").textContent = weatherDesc;
+        } else {
+          document.getElementById("weatherTemp").textContent = "Weather not available";
+          document.getElementById("weatherDesc").textContent = "";
         }
+      })
+      .catch(error => {
+        console.error("Error fetching weather data:", error);
+        document.getElementById("weatherTemp").textContent = "Weather not available";
+        document.getElementById("weatherDesc").textContent = "";
       });
-    }
-
-    function saveMeals() {
-      const meals = {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        meals[day] = meal.innerText;
-      });
-      localStorage.setItem('mealPlan', JSON.stringify(meals));
-    }
-
-    document.querySelectorAll('.meal').forEach(meal => {
-      meal.addEventListener('blur', saveMeals);
-    });
-
-    loadMeals();  // Load meals when the page is opened
-
-    // Highlight current day in meal plan
-    const today = new Date().getDay();  // Get the current day (0 = Sunday, 1 = Monday, etc.)
-
-    document.querySelectorAll('.meal').forEach(meal => {
-      if (parseInt(meal.dataset.day) === today) {
-        meal.classList.add('todayMeal');  // Add class to highlight the current day
-      }
-    });
-  </script>
-
-  <script>
-    // Shopping List Logic
-    let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
-
-    function renderShoppingList() {
-      const list = document.getElementById("shoppingList");
-      list.innerHTML = '';
-      shoppingList.forEach((item, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<input type="checkbox" ${item.done ? "checked" : ""} onclick="toggleItem(${index})"> ${item.name} 
-        <button onclick="deleteItem(${index})" style="margin-left: 10px; background-color: red; color: white;">❌</button>`;
-        list.appendChild(li);
-      });
-
-      localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-    }
-
-    function addShoppingItem() {
-      const newItem = document.getElementById("newShoppingItem").value;
-      if (newItem.trim()) {
-        shoppingList.push({ name: newItem, done: false });
-        renderShoppingList();
-        document.getElementById("newShoppingItem").value = '';
-      }
-    }
-
-    function toggleItem(index) {
-      shoppingList[index].done = !shoppingList[index].done;
-      renderShoppingList();
-    }
-
-    function deleteItem(index) {
-      shoppingList.splice(index, 1);
-      renderShoppingList();
-    }
-
-    renderShoppingList();  // Initial render of the shopping list
   </script>
 
   <script>
@@ -360,33 +306,6 @@
         console.error("Error fetching calendar events:", error);
         const list = document.getElementById("calendar");
         list.innerHTML = "<li>Unable to load events.</li>";
-      });
-  </script>
-
-  <script>
-    // Weather Data Fetching using OpenWeatherMap API
-    const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
-    const city = "Gateshead";  // Replace with your desired city
-    const units = "metric";  // For temperature in Celsius
-
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${units}&appid=${apiKey}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data && data.main && data.weather) {
-          const temp = data.main.temp;  // Temperature in Celsius
-          const weatherDesc = data.weather[0].description;  // Weather description
-
-          document.getElementById("weatherTemp").textContent = `${temp}°C`;
-          document.getElementById("weatherDesc").textContent = weatherDesc;
-        } else {
-          document.getElementById("weatherTemp").textContent = "Weather not available";
-          document.getElementById("weatherDesc").textContent = "";
-        }
-      })
-      .catch(error => {
-        console.error("Error fetching weather data:", error);
-        document.getElementById("weatherTemp").textContent = "Weather not available";
-        document.getElementById("weatherDesc").textContent = "";
       });
   </script>
 
