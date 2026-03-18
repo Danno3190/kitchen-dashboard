@@ -13,6 +13,19 @@
       padding: 20px;
     }
 
+    /* Header Styling */
+    #header {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #currentTime {
+      font-size: 18px;
+      text-align: center;
+      margin-top: -15px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -67,29 +80,15 @@
       padding: 10px;
       border-radius: 8px;
     }
-
-    #header {
-      font-size: 28px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    #currentTime {
-      font-size: 18px;
-      text-align: center;
-      margin-top: -15px;
-    }
   </style>
 </head>
 <body>
 
-  <div class="grid">
-    <!-- Header Section -->
-    <div class="card">
-      <h2 id="header">The Grey's Kitchen</h2>
-      <div id="currentTime"></div>
-    </div>
+  <!-- Header Section -->
+  <div id="header">The Grey's Kitchen</div>
+  <div id="currentTime"></div>
 
+  <div class="grid">
     <!-- Calendar Section -->
     <div class="card">
       <h2>Calendar</h2>
@@ -127,19 +126,19 @@
   </div>
 
   <script>
-    // Date and Time Logic (24-hour format)
+    // Date and Time Logic (24-hour format with AM/PM)
+    function formatTime(date) {
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      let ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      return `${hours}:${minutes} ${ampm}`;
+    }
+
     const currentDate = new Date();
-    const options = {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false // 24-hour format
-    };
-    document.getElementById("currentTime").textContent = currentDate.toLocaleString('en-US', options);
+    document.getElementById("currentTime").textContent = `${currentDate.toLocaleDateString()} at ${formatTime(currentDate)}`;
 
     // Meal Plan Saving and Loading (same as before)
     function loadMeals() {
