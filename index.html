@@ -6,7 +6,7 @@
   <title>Kitchen Dashboard</title>
   <style>
     body {
-      background-color: #2f2f2f;
+      background-color: #2f2f2f; /* Adjust background color */
       color: white;
       font-family: Arial, sans-serif;
       margin: 0;
@@ -51,6 +51,11 @@
 
     #weatherDesc {
       font-size: 14px;
+    }
+
+    #weatherForecast {
+      font-size: 14px;
+      margin-top: 10px;
     }
 
     /* Calendar CSS */
@@ -163,7 +168,7 @@
       <h2>Weather in Gateshead</h2>
       <div id="weatherTemp"></div>
       <div id="weatherDesc"></div>
-      <div id="forecast"></div>
+      <div id="weatherForecast"></div>
     </div>
   </div>
 
@@ -286,82 +291,37 @@
   </script>
 
   <script>
-    // Calendar Fetch Logic
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
-
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-      .then(response => response.text())
-      .then(data => {
-        const events = data.split("BEGIN:VEVENT");
-        const list = document.getElementById("calendar");
-        list.innerHTML = '';  // Clear current events
-
-        let count = 0;  // Track number of events displayed
-        const today = new Date();  // Get today's date
-        const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
-
-        const eventArray = [];
-
-        // Parse each event and add it to an array
-        events.forEach(event => {
-          const title = event.match(/SUMMARY:(.*)/);
-          const date = event.match(/DTSTART[^:]*:(.*)/);
-          if (!title || !date) return;
-
-          const raw = date[1].trim();
-          const year = raw.substring(0, 4);
-          const month = raw.substring(4, 6);
-          const day = raw.substring(6, 8);
-          const eventDate = `${year}-${month}-${day}`;
-
-          if (eventDate >= currentDate) {  // Only show upcoming events
-            eventArray.push({
-              date: eventDate,
-              title: title[1]
-            });
-          }
-        });
-
-        // Sort the events by date
-        eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
-
-        // Display up to 5 events
-        eventArray.slice(0, 5).forEach(event => {
-          const item = document.createElement("li");
-          item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} - ${event.title}`;
-          list.appendChild(item);
-          count++;  // Increment count after displaying an event
-        });
-      })
-      .catch(error => {
-        console.error("Error fetching calendar events:", error);
-        const list = document.getElementById("calendar");
-        list.innerHTML = "<li>Unable to load events.</li>";
-      });
-  </script>
-
-  <script>
-    // Weather Data Fetching using OpenWeatherMap API
+    // Weather Data Fetching using OpenWeatherMap API (Hourly Forecast)
     const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
     const city = "Gateshead";  // Replace with your desired city
     const units = "metric";  // For temperature in Celsius
 
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${units}&appid=${apiKey}`)
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}&appid=${apiKey}`)
       .then(response => response.json())
       .then(data => {
-        // Extract the temperature and weather description
-        const temp = data.main.temp;  // Temperature in Celsius
-        const weatherDesc = data.weather[0].description;  // Weather description
+        const currentWeather = data.list[0]; // First element is the current weather
+        const temp = currentWeather.main.temp;  // Temperature in Celsius
+        const weatherDesc = currentWeather.weather[0].description;  // Weather description
 
-        // Update the UI with the fetched weather data
+        // Show current weather
         document.getElementById("weatherTemp").textContent = `${temp}°C`;
         document.getElementById("weatherDesc").textContent = weatherDesc;
+
+        // Show the full day's forecast (every 3 hours)
+        let forecastHtml = '<strong>Forecast for the day:</strong>';
+        data.list.forEach((forecast) => {
+          const time = new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          forecastHtml += `<p>${time} - ${forecast.main.temp}°C, ${forecast.weather[0].description}</p>`;
+        });
+
+        // Display the forecast
+        document.getElementById("weatherForecast").innerHTML = forecastHtml;
       })
       .catch(error => {
-        // Log any error
         console.error("Error fetching weather data:", error);
         document.getElementById("weatherTemp").textContent = "Weather not available";
         document.getElementById("weatherDesc").textContent = "";
+        document.getElementById("weatherForecast").textContent = "";
       });
   </script>
 
