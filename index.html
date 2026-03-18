@@ -6,7 +6,7 @@
   <title>Kitchen Dashboard</title>
   <style>
     body {
-      background-color: #2f2f2f; /* Adjust background color */
+      background-color: #2f2f2f;
       color: white;
       font-family: Arial, sans-serif;
       margin: 0;
@@ -291,7 +291,7 @@
   </script>
 
   <script>
-    // Weather Data Fetching using OpenWeatherMap API (Hourly Forecast)
+    // Weather Data Fetching using OpenWeatherMap API (Daily Forecast)
     const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
     const city = "Gateshead";  // Replace with your desired city
     const units = "metric";  // For temperature in Celsius
@@ -307,9 +307,9 @@
         document.getElementById("weatherTemp").textContent = `${temp}°C`;
         document.getElementById("weatherDesc").textContent = weatherDesc;
 
-        // Show the full day's forecast (every 3 hours)
+        // Show the full day's forecast (for the next 24 hours)
         let forecastHtml = '<strong>Forecast for the day:</strong>';
-        data.list.forEach((forecast) => {
+        data.list.slice(0, 8).forEach((forecast) => {  // Only take the forecast for the next 24 hours (every 3 hours)
           const time = new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           forecastHtml += `<p>${time} - ${forecast.main.temp}°C, ${forecast.weather[0].description}</p>`;
         });
