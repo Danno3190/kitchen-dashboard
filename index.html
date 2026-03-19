@@ -344,7 +344,7 @@
       });
   </script>
 
-<script>
+  <script>
 const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
 const city = "Gateshead";  // Replace with your desired city
 const units = "metric";  // For temperature in Celsius
@@ -364,16 +364,15 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}
     const currentHour = now.getHours();
     const forecast = [];
 
-    // Decide whether we are showing today's or tomorrow's forecast
-    if (currentHour < 24) {
-      // Show today's forecast (9 PM to 12 AM)
-      forecast.push(21, 22, 23, 0);  // Hours for today (9 PM to 12 AM)
-    } else if (currentHour >= 0 && currentHour < 12) {
-      // Show tomorrow's forecast (7 AM to 12 PM)
+    // Today - only show 9 PM, 10 PM, 11 PM, 12 AM
+    if (currentHour >= 0 && currentHour < 12) {
+      forecast.push(21, 22, 23, 0);  // Show only for today until 12 AM
+    } else if (currentHour >= 12 && currentHour < 24) {
+      // Tomorrow - Show forecast from 7 AM to 12 PM
       forecast.push(7, 8, 9, 10, 11, 12);  // Hours for tomorrow (7 AM to 12 PM)
     } else {
-      // Show tomorrow's forecast from 1 PM onwards
-      forecast.push(13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);  // Hours for tomorrow (1 PM to 12 AM)
+      // Display remaining forecast from 1 PM onward
+      forecast.push(13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);  // Tomorrow's forecast (from 1 PM onward)
     }
 
     // Filter and display weather for specific hours
