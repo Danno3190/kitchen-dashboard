@@ -344,41 +344,49 @@
       });
   </script>
 
-  <script>
-    // Weather Data Fetching using OpenWeatherMap API
-    const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
-    const city = "Gateshead";  // Replace with your desired city
-    const units = "metric";  // For temperature in Celsius
+<script>
+  // Weather Data Fetching using OpenWeatherMap API
+  const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
+  const city = "Gateshead";  // Replace with your desired city
+  const units = "metric";  // For temperature in Celsius
 
-    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}&appid=${apiKey}`)
-      .then(response => response.json())
-      .then(data => {
-        // Extract current weather and daily forecast
-        const currentTemp = data.list[0].main.temp;  // Current temperature in Celsius
-        const weatherDesc = data.list[0].weather[0].description;  // Current weather description
+  fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}&appid=${apiKey}`)
+    .then(response => response.json())
+    .then(data => {
+      // Extract current weather and daily forecast
+      const currentTemp = data.list[0].main.temp;  // Current temperature in Celsius
+      const weatherDesc = data.list[0].weather[0].description;  // Current weather description
 
-        // Display the current weather
-        document.getElementById("weatherTemp").textContent = `${currentTemp}°C`;
-        document.getElementById("weatherDesc").textContent = weatherDesc;
+      // Display the current weather
+      document.getElementById("weatherTemp").textContent = `${currentTemp}°C`;
+      document.getElementById("weatherDesc").textContent = weatherDesc;
 
-        // Display the forecast for the rest of the day (from 9:00 PM to midnight)
-        let forecastHtml = "<strong>Forecast for the day:</strong><br>";
-        data.list.forEach(item => {
-          const hour = new Date(item.dt * 1000).getHours();
-          if (hour >= 21 && hour <= 23) {  // Display forecast for today after 9:00 PM
-            forecastHtml += `${hour}:00 - ${item.main.temp}°C, ${item.weather[0].description}<br>`;
-          }
-        });
-        document.getElementById("weatherForecast").innerHTML = forecastHtml;
-      })
-      .catch(error => {
-        // Log any error
-        console.error("Error fetching weather data:", error);
-        document.getElementById("weatherTemp").textContent = "Weather not available";
-        document.getElementById("weatherDesc").textContent = "";
-        document.getElementById("weatherForecast").textContent = "";
+      // Display the forecast for the rest of the day (from 9:00 PM to midnight)
+      let forecastHtml = "<strong>Forecast for the day:</strong><br>";
+      let lastHour = 0; // Variable to track the last hour to avoid duplicates
+
+      data.list.forEach(item => {
+        const hour = new Date(item.dt * 1000).getHours();
+        const temp = item.main.temp;
+        const description = item.weather[0].description;
+
+        // Only display the forecast for 9 PM to midnight
+        if (hour >= 21 && hour <= 23 && hour !== lastHour) {
+          forecastHtml += `${hour}:00 - ${temp}°C, ${description}<br>`;
+          lastHour = hour;  // Update lastHour to prevent duplicate times
+        }
       });
-  </script>
+
+      document.getElementById("weatherForecast").innerHTML = forecastHtml;
+    })
+    .catch(error => {
+      // Log any error
+      console.error("Error fetching weather data:", error);
+      document.getElementById("weatherTemp").textContent = "Weather not available";
+      document.getElementById("weatherDesc").textContent = "";
+      document.getElementById("weatherForecast").textContent = "";
+    });
+</script>
 
 </body>
 </html>
