@@ -345,50 +345,59 @@
   </script>
 
 <script>
-  // Weather Data Fetching using OpenWeatherMap API
-  const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
-  const city = "Gateshead";  // Replace with your desired city
-  const units = "metric";  // For temperature in Celsius
+const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
+const city = "Gateshead";  // Replace with your desired city
+const units = "metric";  // For temperature in Celsius
 
-  fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}&appid=${apiKey}`)
-    .then(response => response.json())
-    .then(data => {
-      // Extract current weather and daily forecast
-      const currentTemp = data.list[0].main.temp;  // Current temperature in Celsius
-      const weatherDesc = data.list[0].weather[0].description;  // Current weather description
+fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}&appid=${apiKey}`)
+  .then(response => response.json())
+  .then(data => {
+    // Extract current weather and daily forecast
+    const currentTemp = data.list[0].main.temp;  // Current temperature
+    const weatherDesc = data.list[0].weather[0].description;  // Current weather description
+    
+    // Update the current weather info
+    document.getElementById("weatherTemp").textContent = `${currentTemp}°C`;
+    document.getElementById("weatherDesc").textContent = weatherDesc;
 
-      // Display the current weather
-      document.getElementById("weatherTemp").textContent = `${currentTemp}°C`;
-      document.getElementById("weatherDesc").textContent = weatherDesc;
+    const now = new Date();
+    const currentHour = now.getHours();
+    const forecast = [];
 
-      // Display the forecast for the rest of the day (9 PM, 10 PM, 11 PM, 12 AM)
-      let forecastHtml = "<strong>Forecast for the day:</strong><br>";
-      const forecastTimes = [21, 22, 23, 0]; // 9 PM, 10 PM, 11 PM, 12 AM
-      let lastHour = -1; // To avoid duplicate hours
+    // Decide whether we are showing today's or tomorrow's forecast
+    if (currentHour < 24) {
+      // Show today's forecast (9 PM to 12 AM)
+      forecast.push(21, 22, 23, 0);  // Hours for today (9 PM to 12 AM)
+    } else if (currentHour >= 0 && currentHour < 12) {
+      // Show tomorrow's forecast (7 AM to 12 PM)
+      forecast.push(7, 8, 9, 10, 11, 12);  // Hours for tomorrow (7 AM to 12 PM)
+    } else {
+      // Show tomorrow's forecast from 1 PM onwards
+      forecast.push(13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);  // Hours for tomorrow (1 PM to 12 AM)
+    }
 
-      // Loop through the forecast list
-      data.list.forEach(item => {
-        const hour = new Date(item.dt * 1000).getHours();
-        const temp = item.main.temp;
-        const description = item.weather[0].description;
-
-        // Only display forecast for the required times (9 PM, 10 PM, 11 PM, and 12 AM)
-        if (forecastTimes.includes(hour) && hour !== lastHour) {
-          forecastHtml += `${hour}:00 - ${temp}°C, ${description}<br>`;
-          lastHour = hour;  // Update lastHour to prevent duplicates
-        }
-      });
-
-      // Display the forecast for the day
-      document.getElementById("weatherForecast").innerHTML = forecastHtml;
-    })
-    .catch(error => {
-      // Log any error
-      console.error("Error fetching weather data:", error);
-      document.getElementById("weatherTemp").textContent = "Weather not available";
-      document.getElementById("weatherDesc").textContent = "";
-      document.getElementById("weatherForecast").textContent = "";
+    // Filter and display weather for specific hours
+    const filteredForecast = data.list.filter(hourlyData => {
+      const forecastHour = new Date(hourlyData.dt * 1000).getHours();
+      return forecast.includes(forecastHour);  // Filter for the selected hours
     });
+
+    let forecastText = "Forecast for the day:\n";
+    filteredForecast.forEach(hourlyData => {
+      const forecastHour = new Date(hourlyData.dt * 1000).getHours();
+      const temp = hourlyData.main.temp;
+      const weather = hourlyData.weather[0].description;
+      const time = `${forecastHour === 0 ? 12 : forecastHour % 12}:${("0" + (new Date(hourlyData.dt * 1000).getMinutes())).slice(-2)} ${forecastHour < 12 ? 'AM' : 'PM'}`;
+      forecastText += `${time} - ${temp}°C, ${weather}\n`;
+    });
+
+    document.getElementById("weatherDesc").textContent += "\n" + forecastText;  // Update the weather section with the forecast
+  })
+  .catch(error => {
+    console.error("Error fetching weather data:", error);
+    document.getElementById("weatherTemp").textContent = "Weather not available";
+    document.getElementById("weatherDesc").textContent = "";
+  });
 </script>
 
 </body>
