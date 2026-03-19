@@ -344,6 +344,7 @@
       });
   </script>
 
+  <script>
 // Weather Data Fetching using OpenWeatherMap API
 const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
 const city = "Gateshead";  // Replace with your desired city
@@ -355,7 +356,7 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}
     // Get the current date and time
     const currentDate = new Date();
     const currentTime = currentDate.getHours();  // Get the current hour in 24-hour format
-    
+
     // Filter the forecast to show only the times for today (9pm, 10pm, 11pm, 12am)
     const forecastToday = data.list.filter(item => {
       const itemDate = new Date(item.dt * 1000);  // Convert Unix timestamp to Date
@@ -399,6 +400,7 @@ function displayWeather(forecastData) {
   });
   weatherElement.textContent = forecastText;
 }
+</script>
 
 </body>
 </html>
