@@ -361,7 +361,7 @@
       document.getElementById("weatherTemp").textContent = `${currentTemp}°C`;
       document.getElementById("weatherDesc").textContent = weatherDesc;
 
-      // Display the forecast for the rest of the day (from 9:00 PM to midnight)
+      // Display the forecast for the rest of the day (from 9:00 PM to 12 AM)
       let forecastHtml = "<strong>Forecast for the day:</strong><br>";
       let lastHour = 0; // Variable to track the last hour to avoid duplicates
 
@@ -370,12 +370,20 @@
         const temp = item.main.temp;
         const description = item.weather[0].description;
 
-        // Only display the forecast for 9 PM to midnight
+        // Only display the forecast for 9 PM, 10 PM, 11 PM, and 12 AM
         if (hour >= 21 && hour <= 23 && hour !== lastHour) {
           forecastHtml += `${hour}:00 - ${temp}°C, ${description}<br>`;
           lastHour = hour;  // Update lastHour to prevent duplicate times
         }
       });
+
+      // Now, include the midnight forecast (if available) for the next day
+      const midnightForecast = data.list.find(item => new Date(item.dt * 1000).getHours() === 0);
+      if (midnightForecast) {
+        const temp = midnightForecast.main.temp;
+        const description = midnightForecast.weather[0].description;
+        forecastHtml += `00:00 - ${temp}°C, ${description}<br>`;
+      }
 
       document.getElementById("weatherForecast").innerHTML = forecastHtml;
     })
