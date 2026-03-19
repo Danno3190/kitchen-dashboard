@@ -358,11 +358,11 @@
         document.getElementById("weatherTemp").textContent = `${currentTemp}°C`;
         document.getElementById("weatherDesc").textContent = weatherDesc;
 
-        // Display the forecast for the rest of the day
+        // Display the forecast for the rest of the day (from 9:00 PM to midnight)
         let forecastHtml = "<strong>Forecast for the day:</strong><br>";
         data.list.forEach(item => {
           const hour = new Date(item.dt * 1000).getHours();
-          if (hour > 0 && hour <= 21) {  // Display forecast for the next 24 hours
+          if (hour >= 21) {  // Display forecast for today after 9:00 PM
             forecastHtml += `${hour}:00 - ${item.main.temp}°C, ${item.weather[0].description}<br>`;
           }
         });
