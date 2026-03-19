@@ -344,7 +344,7 @@
       });
   </script>
 
-<script>
+  <script>
 // Weather Data Fetching using OpenWeatherMap API
 const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
 const city = "Gateshead";  // Replace with your desired city
@@ -353,30 +353,37 @@ const units = "metric";  // For temperature in Celsius
 fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}&appid=${apiKey}`)
   .then(response => response.json())
   .then(data => {
-    // Get the current date and time
     const currentDate = new Date();
     const currentTime = currentDate.getHours();  // Get the current hour in 24-hour format
 
-    // Filter the forecast to show only the times for today (9pm, 10pm, 11pm, 12am)
-    const forecastToday = data.list.filter(item => {
+    let forecastToday = [];
+    let forecastTomorrow = [];
+
+    // Iterate over the forecast data and segregate it into today and tomorrow's forecast
+    data.list.forEach(item => {
       const itemDate = new Date(item.dt * 1000);  // Convert Unix timestamp to Date
       const itemHour = itemDate.getHours();
 
-      // Only include times for today (9pm, 10pm, 11pm, 12am)
-      return itemHour >= 21 && itemHour <= 24;
+      // For today (9 PM, 10 PM, 11 PM, and 12 AM)
+      if (itemHour >= 21 && itemHour <= 24) {
+        forecastToday.push(item);
+      }
+
+      // For tomorrow (7 AM to 12 AM)
+      if (itemHour >= 7 && itemHour <= 24) {
+        forecastTomorrow.push(item);
+      }
     });
 
-    // Check if the current time is before midnight
-    if (currentTime < 24) {
-      // Show only 9pm, 10pm, 11pm, and 12am for today
+    // Check the current time and decide which forecast to display
+    if (currentTime >= 21 && currentTime < 24) {
+      // If it's between 9 PM and 12 AM, display today's forecast (9 PM, 10 PM, 11 PM, 12 AM)
+      displayWeather(forecastToday);
+    } else if (currentTime < 21) {
+      // If it's before 9 PM, show forecast for today
       displayWeather(forecastToday);
     } else {
-      // After midnight, start showing tomorrow's weather from 7am
-      const forecastTomorrow = data.list.filter(item => {
-        const itemDate = new Date(item.dt * 1000);  // Convert Unix timestamp to Date
-        const itemHour = itemDate.getHours();
-        return itemHour >= 7 && itemHour <= 24;
-      });
+      // After midnight, show forecast for tomorrow (7 AM onward)
       displayWeather(forecastTomorrow);
     }
   })
