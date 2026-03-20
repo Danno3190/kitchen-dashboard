@@ -294,7 +294,12 @@ body {
 const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
 
 fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-  .then(response => response.text())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return response.text();
+  })
   .then(data => {
     const events = data.split("BEGIN:VEVENT");
     const list = document.getElementById("calendar");
@@ -347,6 +352,7 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
       count++;  // Increment count after displaying an event
     });
 
+    // If no events to show after the slice
     if (count === 0) {
       list.innerHTML = "<li>No events found.</li>";
     }
@@ -354,7 +360,7 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
   .catch(error => {
     console.error("Error fetching calendar events:", error);
     const list = document.getElementById("calendar");
-    list.innerHTML = "<li>Unable to load events due to an error.</li>";
+    list.innerHTML = "<li>Unable to load events due to an error. Please check the calendar URL or try again later.</li>";
   });
 </script>
 
