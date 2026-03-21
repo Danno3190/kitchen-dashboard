@@ -290,24 +290,30 @@
   </script>
 
 <script>
-// Calendar Fetch Logic
-const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud calendar URL
+const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your iCloud calendar URL
 
+// Fetch calendar events
 fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-  .then(response => response.text())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.text();
+  })
   .then(data => {
     const events = data.split("BEGIN:VEVENT");
     const list = document.getElementById("calendar");
-    list.innerHTML = '';  // Clear current events
+    list.innerHTML = ''; // Clear the calendar list
 
-    if (!events.length) {
+    // Ensure there is event data
+    if (events.length === 0) {
       list.innerHTML = "<li>No events found in the calendar data.</li>";
       return;
     }
 
-    let count = 0;  // Track number of events displayed
-    const today = new Date();  // Get today's date
-    const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
+    let count = 0;
+    const today = new Date();
+    const currentDate = today.toISOString().split("T")[0]; // YYYY-MM-DD
 
     const eventArray = [];
 
@@ -336,7 +342,7 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
       return;
     }
 
-    // Sort the events by date
+    // Sort events by date
     eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
 
     // Display up to 5 events
@@ -344,7 +350,7 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
       const item = document.createElement("li");
       item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} - ${event.title}`;
       list.appendChild(item);
-      count++;  // Increment count after displaying an event
+      count++;
     });
 
     if (count === 0) {
@@ -354,10 +360,10 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
   .catch(error => {
     console.error("Error fetching calendar events:", error);
     const list = document.getElementById("calendar");
-    list.innerHTML = "<li>Unable to load events due to an error.</li>";
+    list.innerHTML = "<li>Unable to load events. Please check your calendar URL.</li>";
   });
 </script>
-
+  
 <script>
 // Weather Data Fetching using OpenWeatherMap API
 const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
