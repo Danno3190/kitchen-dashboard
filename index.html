@@ -290,20 +290,15 @@
   </script>
 
 <script>
-const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your iCloud calendar URL
+// Test Calendar Fetch Logic using a public .ics URL (replace with a valid public calendar URL)
+const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your public calendar URL
 
-// Fetch calendar events
 fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.text();
-  })
+  .then(response => response.text())
   .then(data => {
     const events = data.split("BEGIN:VEVENT");
     const list = document.getElementById("calendar");
-    list.innerHTML = ''; // Clear the calendar list
+    list.innerHTML = '';  // Clear current events
 
     // Ensure there is event data
     if (events.length === 0) {
@@ -312,8 +307,8 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
     }
 
     let count = 0;
-    const today = new Date();
-    const currentDate = today.toISOString().split("T")[0]; // YYYY-MM-DD
+    const today = new Date();  // Get today's date
+    const currentDate = today.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 
     const eventArray = [];
 
@@ -337,11 +332,6 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
       }
     });
 
-    if (eventArray.length === 0) {
-      list.innerHTML = "<li>No upcoming events found.</li>";
-      return;
-    }
-
     // Sort events by date
     eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
 
@@ -360,7 +350,7 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
   .catch(error => {
     console.error("Error fetching calendar events:", error);
     const list = document.getElementById("calendar");
-    list.innerHTML = "<li>Unable to load events. Please check your calendar URL.</li>";
+    list.innerHTML = "<li>Unable to load events due to an error.</li>";
   });
 </script>
   
