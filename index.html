@@ -5,19 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kitchen Dashboard</title>
   <style>
- body {
-  background-color: #d3d3d3; /* Light grey background */
-  color: white;  /* White text for better contrast */
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-}
+    body {
+      background-color: #d3d3d3; /* Light grey background */
+      color: white;  /* White text for better contrast */
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
 
-  #heading {
-  text-align: center;
-  margin-bottom: 20px;
-  color: black; /* Change header text color to black */
-}
+    /* Heading section style */
+    #heading {
+      text-align: center;
+      margin-bottom: 20px;
+      color: black; /* Change header text color to black */
+    }
 
     #dateTime {
       font-size: 18px;
@@ -289,8 +290,8 @@
     renderShoppingList(); // Initial render of the shopping list
   </script>
 
-  <script>
-// Test Calendar Fetch Logic using a public .ics URL (replace with a valid public calendar URL)
+<script>
+// Calendar Fetch Logic
 const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your public calendar URL
 
 fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
@@ -331,6 +332,11 @@ fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
         });
       }
     });
+
+    if (eventArray.length === 0) {
+      list.innerHTML = "<li>No upcoming events found.</li>";
+      return;
+    }
 
     // Sort events by date
     eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
