@@ -6,8 +6,8 @@
   <title>Kitchen Dashboard</title>
   <style>
     body {
-      background-color: #d3d3d3; /* Light grey background */
-      color: white;  /* White text for better contrast */
+      background-color: #d3d3d3;
+      color: white;
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
@@ -16,7 +16,7 @@
     #heading {
       text-align: center;
       margin-bottom: 20px;
-      color: black; /* Change header text color to black */
+      color: black;
     }
 
     #dateTime {
@@ -54,32 +54,6 @@
       padding: 10px;
       border-radius: 8px;
     }
-
-    #weatherTemp {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    #weatherDesc {
-      font-size: 14px;
-    }
-
-    #weatherForecast {
-      font-size: 14px;
-    }
-
-    .meal {
-      font-size: 20px;
-      margin: 10px 0;
-      cursor: pointer;
-    }
-
-    .todayMeal {
-      background-color: rgba(255, 255, 255, 0.3);
-      padding: 6px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
@@ -94,36 +68,6 @@
     <div class="card">
       <h2>Calendar</h2>
       <ul id="calendar"></ul>
-    </div>
-
-    <!-- Meal Plan Section -->
-    <div class="card">
-      <h2>Meal Plan</h2>
-      <div id="meals">
-        <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
-        <div data-day="2" contenteditable="true" class="meal">Tue – Mams</div>
-        <div data-day="3" contenteditable="true" class="meal">Wed – Dinner</div>
-        <div data-day="4" contenteditable="true" class="meal">Thu – Burgers</div>
-        <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
-        <div data-day="6" contenteditable="true" class="meal">Sat – Mams</div>
-        <div data-day="0" contenteditable="true" class="meal">Sun – Dinner</div>
-      </div>
-    </div>
-
-    <!-- Shopping List Section -->
-    <div class="card">
-      <h2>Shopping List</h2>
-      <ul id="shoppingList"></ul>
-      <input id="newShoppingItem" placeholder="Add Item" style="width: 80%; padding: 8px;">
-      <button onclick="addShoppingItem()">Add</button>
-    </div>
-
-    <!-- Weather Section -->
-    <div class="card">
-      <h2>Weather in Gateshead</h2>
-      <div id="weatherTemp"></div>
-      <div id="weatherDesc"></div>
-      <div id="weatherForecast"></div>
     </div>
   </div>
 
@@ -141,18 +85,18 @@
     setInterval(updateDateTime, 1000); // Update every second
     updateDateTime(); // Initial call to set date/time
 
-    // Calendar Fetch Logic
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your calendar URL
+    // Fetch Calendar Events from the public iCloud calendar URL
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Your iCloud public calendar link
 
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+    fetch(url)
       .then(response => response.text())
       .then(data => {
         const events = data.split("BEGIN:VEVENT");
         const list = document.getElementById("calendar");
-        list.innerHTML = ''; // Clear current events
+        list.innerHTML = '';  // Clear current events
 
-        // Ensure there is event data
-        if (events.length === 0) {
+        // Check if events exist
+        if (events.length <= 1) {
           list.innerHTML = "<li>No events found in the calendar data.</li>";
           return;
         }
@@ -163,7 +107,7 @@
 
         const eventArray = [];
 
-        // Parse each event and add it to an array
+        // Parse each event and add it to the event array
         events.forEach(event => {
           const title = event.match(/SUMMARY:(.*)/);
           const date = event.match(/DTSTART[^:]*:(.*)/);
@@ -191,7 +135,7 @@
         // Sort events by date
         eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
 
-        // Display only the first 5 events
+        // Display first 5 events
         eventArray.slice(0, 5).forEach(event => {
           const item = document.createElement("li");
           item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} ${event.time} - ${event.title}`;
@@ -199,6 +143,7 @@
           count++;
         });
 
+        // If no events, show message
         if (count === 0) {
           list.innerHTML = "<li>No events found.</li>";
         }
@@ -207,124 +152,6 @@
         console.error("Error fetching calendar events:", error);
         const list = document.getElementById("calendar");
         list.innerHTML = "<li>Unable to load events due to an error.</li>";
-      });
-
-    // Meal Plan Saving and Loading
-    function loadMeals() {
-      const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        if (savedMeals[day]) {
-          meal.innerText = savedMeals[day];
-        }
-      });
-    }
-
-    function saveMeals() {
-      const meals = {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        meals[day] = meal.innerText;
-      });
-      localStorage.setItem('mealPlan', JSON.stringify(meals));
-    }
-
-    document.querySelectorAll('.meal').forEach(meal => {
-      meal.addEventListener('blur', saveMeals);
-    });
-
-    loadMeals();  // Load meals when the page is opened
-
-    // Highlight current day in meal plan
-    const today = new Date().getDay();  // Get the current day (0 = Sunday, 1 = Monday, etc.)
-
-    document.querySelectorAll('.meal').forEach(meal => {
-      if (parseInt(meal.dataset.day) === today) {
-        meal.classList.add('todayMeal');  // Add class to highlight the current day
-      }
-    });
-  </script>
-
-  <script>
-    // Shopping List Logic
-    let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
-
-    function renderShoppingList() {
-      const list = document.getElementById("shoppingList");
-      list.innerHTML = ''; // Clear previous list
-
-      shoppingList.forEach((item, index) => {
-        const li = document.createElement("li");
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("checkbox");
-        checkbox.checked = item.done;
-        checkbox.onclick = function () {
-          toggleItem(index); 
-        };
-
-        const itemText = document.createElement("span");
-        itemText.classList.add("shoppingItem");
-        itemText.textContent = item.name;
-
-        const deleteButton = document.createElement("button");
-        deleteButton.classList.add("deleteButton");
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = function () {
-          deleteItem(index); 
-        };
-
-        li.appendChild(checkbox);
-        li.appendChild(itemText);
-        li.appendChild(deleteButton);
-        list.appendChild(li);
-      });
-
-      localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-    }
-
-    function addShoppingItem() {
-      const newItem = document.getElementById("newShoppingItem").value;
-      if (newItem.trim()) {
-        shoppingList.push({ name: newItem, done: false });
-        renderShoppingList(); 
-        document.getElementById("newShoppingItem").value = ''; 
-      }
-    }
-
-    function toggleItem(index) {
-      shoppingList[index].done = !shoppingList[index].done;
-      renderShoppingList(); 
-    }
-
-    function deleteItem(index) {
-      shoppingList.splice(index, 1);
-      renderShoppingList(); 
-    }
-
-    renderShoppingList(); 
-  </script>
-
-  <script>
-    // Weather Data Fetching using OpenWeatherMap API
-    const apiKey = "4ec41d838017d2a6134282b6ff58ad42"; 
-    const city = "Gateshead";  
-    const units = "metric";  
-
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${units}&appid=${apiKey}`)
-      .then(response => response.json())
-      .then(data => {
-        const temp = Math.round(data.main.temp);  
-        const weatherDesc = data.weather[0].description;
-
-        document.getElementById("weatherTemp").textContent = `${temp}°C`;
-        document.getElementById("weatherDesc").textContent = weatherDesc;
-      })
-      .catch(error => {
-        console.error("Error fetching weather data:", error);
-        document.getElementById("weatherTemp").textContent = "Weather not available";
-        document.getElementById("weatherDesc").textContent = "";
       });
   </script>
 
