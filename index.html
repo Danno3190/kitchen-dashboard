@@ -6,8 +6,8 @@
   <title>Kitchen Dashboard</title>
   <style>
     body {
-      background-color: #d3d3d3;
-      color: white;
+      background-color: #d3d3d3; /* Light grey background */
+      color: white;  /* White text for better contrast */
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
@@ -76,7 +76,7 @@
       const date = new Date();
       const options = { 
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
-        hour: 'numeric', minute: 'numeric', hour12: true  
+        hour: 'numeric', minute: 'numeric', hour12: true
       };
       const dateTime = date.toLocaleString('en-GB', options);
       document.getElementById("dateTime").textContent = dateTime;
@@ -84,10 +84,10 @@
     setInterval(updateDateTime, 1000); // Update every second
     updateDateTime(); // Initial call to set date/time
 
-    // Calendar Fetch Logic using a CORS-enabled proxy
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Your iCloud public calendar link
+    // Calendar Fetch Logic using a simpler approach
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your iCloud public calendar link
 
-    fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
+    fetch(url)
       .then(response => response.text())
       .then(data => {
         const events = data.split("BEGIN:VEVENT");
