@@ -64,7 +64,6 @@
   </div>
 
   <div class="grid">
-    <!-- Calendar Section -->
     <div class="card">
       <h2>Calendar</h2>
       <ul id="calendar"></ul>
@@ -77,7 +76,7 @@
       const date = new Date();
       const options = { 
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
-        hour: 'numeric', minute: 'numeric', hour12: true  // 12-hour format
+        hour: 'numeric', minute: 'numeric', hour12: true  
       };
       const dateTime = date.toLocaleString('en-GB', options);
       document.getElementById("dateTime").textContent = dateTime;
@@ -85,24 +84,24 @@
     setInterval(updateDateTime, 1000); // Update every second
     updateDateTime(); // Initial call to set date/time
 
-    // Fetch Calendar Events from the public iCloud calendar URL
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Your iCloud public calendar link
+    // Calendar Fetch Logic using a CORS-enabled proxy
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Your iCloud public calendar link
 
-    fetch(url)
+    fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
       .then(response => response.text())
       .then(data => {
         const events = data.split("BEGIN:VEVENT");
         const list = document.getElementById("calendar");
         list.innerHTML = '';  // Clear current events
 
-        // Check if events exist
+        // Ensure there is event data
         if (events.length <= 1) {
           list.innerHTML = "<li>No events found in the calendar data.</li>";
           return;
         }
 
         let count = 0;
-        const today = new Date();  // Get today's date
+        const today = new Date();
         const currentDate = today.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 
         const eventArray = [];
@@ -112,7 +111,7 @@
           const title = event.match(/SUMMARY:(.*)/);
           const date = event.match(/DTSTART[^:]*:(.*)/);
           const time = event.match(/DTSTART[^:]*:(\d{8}T\d{4})/);
-          
+
           if (!title || !date || !time) return;
 
           const raw = date[1].trim();
@@ -120,7 +119,7 @@
           const month = raw.substring(4, 6);
           const day = raw.substring(6, 8);
           const eventDate = `${year}-${month}-${day}`;
-          
+
           const eventTime = time[1].substring(8, 12);
 
           if (eventDate >= currentDate) {  // Only show upcoming events
