@@ -13,6 +13,17 @@
       padding: 20px;
     }
 
+    #heading {
+      text-align: center;
+      margin-bottom: 20px;
+      color: black; /* Header color */
+    }
+
+    #dateTime {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
     /* Grid for layout */
     .grid {
       display: grid;
@@ -20,7 +31,6 @@
       gap: 20px;
     }
 
-    /* Card style */
     .card {
       background-color: rgba(0, 0, 0, 0.6);
       padding: 20px;
@@ -30,21 +40,6 @@
     h2 {
       font-size: 24px;
       margin-bottom: 10px;
-    }
-
-    /* Calendar section */
-    #calendar {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #calendar li {
-      margin: 10px 0;
-      font-size: 16px;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 8px;
     }
 
     /* Weather section */
@@ -59,6 +54,21 @@
 
     #weatherForecast {
       font-size: 14px;
+    }
+
+    /* Calendar CSS */
+    #calendar {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #calendar li {
+      margin: 10px 0;
+      font-size: 16px;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 8px;
     }
 
     /* Shopping List */
@@ -96,6 +106,20 @@
 
     .checkbox {
       margin-right: 10px;
+    }
+
+    /* Meal Plan */
+    .meal {
+      font-size: 20px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    .todayMeal {
+      background-color: rgba(255, 255, 255, 0.3); /* Light highlight */
+      padding: 6px;
+      border-radius: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -135,14 +159,14 @@
       <input id="newShoppingItem" placeholder="Add Item" style="width: 80%; padding: 8px;">
       <button onclick="addShoppingItem()">Add</button>
     </div>
-  </div>
 
-  <!-- Weather Section -->
-  <div class="card">
-    <h2>Weather in Gateshead</h2>
-    <div id="weatherTemp"></div>
-    <div id="weatherDesc"></div>
-    <div id="weatherForecast"></div>
+    <!-- Weather Section -->
+    <div class="card">
+      <h2>Weather in Gateshead</h2>
+      <div id="weatherTemp"></div>
+      <div id="weatherDesc"></div>
+      <div id="weatherForecast"></div>
+    </div>
   </div>
 
   <script>
@@ -159,6 +183,104 @@
     setInterval(updateDateTime, 1000); // Update every second
     updateDateTime(); // Initial call to set date/time
 
+    // Meal Plan Saving and Loading
+    function loadMeals() {
+      const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};
+      document.querySelectorAll('.meal').forEach(meal => {
+        const day = meal.dataset.day;
+        if (savedMeals[day]) {
+          meal.innerText = savedMeals[day];
+        }
+      });
+    }
+
+    function saveMeals() {
+      const meals = {};
+      document.querySelectorAll('.meal').forEach(meal => {
+        const day = meal.dataset.day;
+        meals[day] = meal.innerText;
+      });
+      localStorage.setItem('mealPlan', JSON.stringify(meals));
+    }
+
+    document.querySelectorAll('.meal').forEach(meal => {
+      meal.addEventListener('blur', saveMeals);
+    });
+
+    loadMeals();  // Load meals when the page is opened
+
+    // Highlight current day in meal plan
+    const today = new Date().getDay();  // Get the current day (0 = Sunday, 1 = Monday, etc.)
+
+    document.querySelectorAll('.meal').forEach(meal => {
+      if (parseInt(meal.dataset.day) === today) {
+        meal.classList.add('todayMeal');  // Add class to highlight the current day
+      }
+    });
+  </script>
+
+  <script>
+    // Shopping List Logic
+    let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
+
+    function renderShoppingList() {
+      const list = document.getElementById("shoppingList");
+      list.innerHTML = ''; // Clear previous list
+
+      shoppingList.forEach((item, index) => {
+        const li = document.createElement("li");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("checkbox");
+        checkbox.checked = item.done;
+        checkbox.onclick = function () {
+          toggleItem(index); // Toggle item done status
+        };
+
+        const itemText = document.createElement("span");
+        itemText.classList.add("shoppingItem");
+        itemText.textContent = item.name;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.classList.add("deleteButton");
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = function () {
+          deleteItem(index); // Delete the item
+        };
+
+        li.appendChild(checkbox);
+        li.appendChild(itemText);
+        li.appendChild(deleteButton);
+        list.appendChild(li);
+      });
+
+      localStorage.setItem("shoppingList", JSON.stringify(shoppingList)); // Save to localStorage
+    }
+
+    function addShoppingItem() {
+      const newItem = document.getElementById("newShoppingItem").value;
+      if (newItem.trim()) {
+        shoppingList.push({ name: newItem, done: false });
+        renderShoppingList();
+        document.getElementById("newShoppingItem").value = '';
+      }
+    }
+
+    function toggleItem(index) {
+      shoppingList[index].done = !shoppingList[index].done;
+      renderShoppingList();
+    }
+
+    function deleteItem(index) {
+      shoppingList.splice(index, 1);
+      renderShoppingList();
+    }
+
+    renderShoppingList();  // Initial render of the shopping list
+  </script>
+
+  <script>
     // Calendar Fetch Logic
     const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your calendar URL
 
@@ -194,14 +316,13 @@
           }
         });
 
-        // Sort the events by date
         eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
 
         eventArray.slice(0, 5).forEach(event => {
           const item = document.createElement("li");
           item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} - ${event.title}`;
           list.appendChild(item);
-          count++;  // Increment count after displaying an event
+          count++;
         });
 
         if (count === 0) {
