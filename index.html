@@ -1,372 +1,41 @@
-Latest latest
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kitchen Dashboard</title>
-  <style>
- body {
-  background-color: #d3d3d3; /* Light grey background */
-  color: white;  /* White text for better contrast */
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-}
-
-  #heading {
-  text-align: center;
-  margin-bottom: 20px;
-  color: black; /* Change header text color to black */
-}
-
-    #dateTime {
-      font-size: 18px;
-      margin-top: 10px;
-    }
-
-    /* Grid for layout */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    /* Card for each section */
-    .card {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    h2 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    /* Weather section */
-    #weatherTemp {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    #weatherDesc {
-      font-size: 14px;
-    }
-
-    #weatherForecast {
-      font-size: 14px;
-    }
-
-    /* Calendar CSS */
-    #calendar {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #calendar li {
-      margin: 10px 0;
-      font-size: 16px;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    /* Shopping List */
-    #shoppingList {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #shoppingList li {
-      background-color: rgba(0, 0, 0, 0.5);
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-    }
-
-    .shoppingItem {
-      flex: 1;
-    }
-
-    .deleteButton {
-      background-color: red;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      padding: 5px;
-    }
-
-    .deleteButton:hover {
-      background-color: darkred;
-    }
-
-    .checkbox {
-      margin-right: 10px;
-    }
-
-    /* Meal Plan CSS */
-    .meal {
-      font-size: 20px;
-      margin: 10px 0;
-      cursor: pointer;
-    }
-
-    /* Highlight current day */
-    .todayMeal {
-      background-color: rgba(255, 255, 255, 0.3);  /* Light highlight */
-      padding: 6px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-  </style>
+  <title>Test Calendar</title>
 </head>
 <body>
-
-  <!-- Heading Section -->
-  <div id="heading">
-    <h1>The Grey's Kitchen</h1>
-    <h2 id="dateTime"></h2>
-  </div>
-
-  <div class="grid">
-    <!-- Calendar Section -->
-    <div class="card">
-      <h2>Calendar</h2>
-      <ul id="calendar"></ul>
-    </div>
-
-    <!-- Meal Plan Section -->
-    <div class="card">
-      <h2>Meal Plan</h2>
-      <div id="meals">
-        <div data-day="1" contenteditable="true" class="meal">Mon – Pasta</div>
-        <div data-day="2" contenteditable="true" class="meal">Tue – Mams</div>
-        <div data-day="3" contenteditable="true" class="meal">Wed – Dinner</div>
-        <div data-day="4" contenteditable="true" class="meal">Thu – Burgers</div>
-        <div data-day="5" contenteditable="true" class="meal">Fri – Pizza</div>
-        <div data-day="6" contenteditable="true" class="meal">Sat – Mams</div>
-        <div data-day="0" contenteditable="true" class="meal">Sun – Dinner</div>
-      </div>
-    </div>
-
-    <!-- Shopping List Section -->
-    <div class="card">
-      <h2>Shopping List</h2>
-      <ul id="shoppingList"></ul>
-      <input id="newShoppingItem" placeholder="Add Item" style="width: 80%; padding: 8px;">
-      <button onclick="addShoppingItem()">Add</button>
-    </div>
-
-    <!-- Weather Section -->
-    <div class="card">
-      <h2>Weather in Gateshead</h2>
-      <div id="weatherTemp"></div>
-      <div id="weatherDesc"></div>
-      <div id="weatherForecast"></div>
-    </div>
-  </div>
+  <h2>Calendar Events</h2>
+  <ul id="calendar"></ul>
 
   <script>
-    // Date and Time (12-hour format with AM/PM)
-    function updateDateTime() {
-      const date = new Date();
-      const options = { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
-        hour: 'numeric', minute: 'numeric', hour12: true  // 12-hour format
-      };
-      const dateTime = date.toLocaleString('en-GB', options);
-      document.getElementById("dateTime").textContent = dateTime;
-    }
-    setInterval(updateDateTime, 1000); // Update every second
-    updateDateTime(); // Initial call to set date/time
-
-    // Meal Plan Saving and Loading
-    function loadMeals() {
-      const savedMeals = JSON.parse(localStorage.getItem('mealPlan')) || {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        if (savedMeals[day]) {
-          meal.innerText = savedMeals[day];
-        }
-      });
-    }
-
-    function saveMeals() {
-      const meals = {};
-      document.querySelectorAll('.meal').forEach(meal => {
-        const day = meal.dataset.day;
-        meals[day] = meal.innerText;
-      });
-      localStorage.setItem('mealPlan', JSON.stringify(meals));
-    }
-
-    document.querySelectorAll('.meal').forEach(meal => {
-      meal.addEventListener('blur', saveMeals);
-    });
-
-    loadMeals();  // Load meals when the page is opened
-
-    // Highlight current day in meal plan
-    const today = new Date().getDay();  // Get the current day (0 = Sunday, 1 = Monday, etc.)
-
-    document.querySelectorAll('.meal').forEach(meal => {
-      if (parseInt(meal.dataset.day) === today) {
-        meal.classList.add('todayMeal');  // Add class to highlight the current day
-      }
-    });
-  </script>
-
-  <script>
-    // Shopping List Logic
-    let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
-
-    // Function to render the shopping list
-    function renderShoppingList() {
-      const list = document.getElementById("shoppingList");
-      list.innerHTML = ''; // Clear previous list
-
-      shoppingList.forEach((item, index) => {
-        const li = document.createElement("li");
-
-        // Create checkbox for marking item as done
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("checkbox");
-        checkbox.checked = item.done;
-        checkbox.onclick = function () {
-          toggleItem(index); // Toggle item done status
-        };
-
-        // Create shopping list item and delete button
-        const itemText = document.createElement("span");
-        itemText.classList.add("shoppingItem");
-        itemText.textContent = item.name;
-
-        const deleteButton = document.createElement("button");
-        deleteButton.classList.add("deleteButton");
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = function () {
-          deleteItem(index); // Delete the item
-        };
-
-        // Add the checkbox, item and button to the list item
-        li.appendChild(checkbox);
-        li.appendChild(itemText);
-        li.appendChild(deleteButton);
-        list.appendChild(li);
-      });
-
-      localStorage.setItem("shoppingList", JSON.stringify(shoppingList)); // Save to localStorage
-    }
-
-    // Function to add shopping item
-    function addShoppingItem() {
-      const newItem = document.getElementById("newShoppingItem").value;
-      if (newItem.trim()) {
-        shoppingList.push({ name: newItem, done: false });
-        renderShoppingList(); // Re-render the list
-        document.getElementById("newShoppingItem").value = ''; // Clear the input field
-      }
-    }
-
-    // Function to toggle the "done" status of an item
-    function toggleItem(index) {
-      shoppingList[index].done = !shoppingList[index].done;
-      renderShoppingList(); // Re-render the list after toggling the item
-    }
-
-    // Function to delete an item from the shopping list
-    function deleteItem(index) {
-      shoppingList.splice(index, 1);
-      renderShoppingList(); // Re-render the list after deletion
-    }
-
-    renderShoppingList(); // Initial render of the shopping list
-  </script>
-
-<script>
-    // Calendar Fetch Logic (using an iCloud URL)
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your iCloud calendar URL
-
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Your iCloud Calendar URL here
+    
+    // Test the calendar URL with a basic fetch
+    fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
       .then(response => response.text())
       .then(data => {
-        const events = data.split("BEGIN:VEVENT");
         const list = document.getElementById("calendar");
-        list.innerHTML = '';  // Clear current events
-
-        let count = 0;
-        const today = new Date();  // Get today's date
-        const currentDate = today.toISOString().split("T")[0]; // Format: YYYY-MM-DD
-
-        const eventArray = [];
-
-        // Parse each event and add it to an array
-        events.forEach(event => {
-          const title = event.match(/SUMMARY:(.*)/);
-          const date = event.match(/DTSTART[^:]*:(.*)/);
-          if (!title || !date) return;
-
-          const raw = date[1].trim();
-          const year = raw.substring(0, 4);
-          const month = raw.substring(4, 6);
-          const day = raw.substring(6, 8);
-          const eventDate = `${year}-${month}-${day}`;
-
-          if (eventDate >= currentDate) {  // Only show upcoming events
-            eventArray.push({
-              date: eventDate,
-              title: title[1]
-            });
-          }
-        });
-
-        eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
-
-        eventArray.slice(0, 5).forEach(event => {
-          const item = document.createElement("li");
-          item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} - ${event.title}`;
-          list.appendChild(item);
-          count++;
-        });
+        const events = data.split("BEGIN:VEVENT");
+        if (events.length > 1) {
+          events.forEach(event => {
+            const title = event.match(/SUMMARY:(.*)/);
+            if (title) {
+              const li = document.createElement("li");
+              li.textContent = title[1];
+              list.appendChild(li);
+            }
+          });
+        } else {
+          list.innerHTML = "<li>No events found.</li>";
+        }
       })
       .catch(error => {
         console.error("Error fetching calendar events:", error);
         const list = document.getElementById("calendar");
-        list.innerHTML = "<li>Unable to load events due to an error.</li>";
+        list.innerHTML = "<li>Unable to load events.</li>";
       });
   </script>
-  
-<script>
-// Weather Data Fetching using OpenWeatherMap API
-const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
-const city = "Gateshead";  // Replace with your desired city
-const units = "metric";  // For temperature in Celsius
-
-fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${units}&appid=${apiKey}`)
-  .then(response => response.json())
-  .then(data => {
-    // Extract the current temperature and weather description
-    const temp = Math.round(data.main.temp);  // Round temperature to nearest whole number
-    const weatherDesc = data.weather[0].description;  // Weather description
-
-    // Update the UI with the fetched weather data
-    document.getElementById("weatherTemp").textContent = `${temp}°C`;
-    document.getElementById("weatherDesc").textContent = weatherDesc;
-  })
-  .catch(error => {
-    console.error("Error fetching weather data:", error);
-    document.getElementById("weatherTemp").textContent = "Weather not available";
-    document.getElementById("weatherDesc").textContent = "";
-  });
-</script>
-  
 </body>
 </html>
