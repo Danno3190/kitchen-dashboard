@@ -7,13 +7,13 @@
   <style>
     body {
       background-color: #d3d3d3; /* Light grey background */
-      color: black; /* Text color */
+      color: white;  /* White text for better contrast */
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 20px;
     }
 
-    /* Grid layout */
+    /* Grid for layout */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -47,22 +47,21 @@
       border-radius: 8px;
     }
 
-    /* Meal Plan Section */
-    .meal {
-      font-size: 20px;
-      margin: 10px 0;
-      cursor: pointer;
-    }
-
-    /* Highlight current day */
-    .todayMeal {
-      background-color: rgba(255, 255, 255, 0.3);  /* Light highlight */
-      padding: 6px;
-      border-radius: 10px;
+    /* Weather section */
+    #weatherTemp {
+      font-size: 18px;
       font-weight: bold;
     }
 
-    /* Shopping list styling */
+    #weatherDesc {
+      font-size: 14px;
+    }
+
+    #weatherForecast {
+      font-size: 14px;
+    }
+
+    /* Shopping List */
     #shoppingList {
       list-style-type: none;
       padding: 0;
@@ -101,6 +100,12 @@
   </style>
 </head>
 <body>
+
+  <!-- Heading Section -->
+  <div id="heading">
+    <h1>The Grey's Kitchen</h1>
+    <h2 id="dateTime"></h2>
+  </div>
 
   <div class="grid">
     <!-- Calendar Section -->
@@ -141,23 +146,35 @@
   </div>
 
   <script>
-    // Fetch the calendar events using the proxy
-    const calendarUrl = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Replace with your calendar URL
+    // Date and Time (12-hour format with AM/PM)
+    function updateDateTime() {
+      const date = new Date();
+      const options = { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', 
+        hour: 'numeric', minute: 'numeric', hour12: true  // 12-hour format
+      };
+      const dateTime = date.toLocaleString('en-GB', options);
+      document.getElementById("dateTime").textContent = dateTime;
+    }
+    setInterval(updateDateTime, 1000); // Update every second
+    updateDateTime(); // Initial call to set date/time
 
-    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(calendarUrl))
+    // Calendar Fetch Logic
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with your calendar URL
+
+    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
       .then(response => response.text())
       .then(data => {
         const events = data.split("BEGIN:VEVENT");
         const list = document.getElementById("calendar");
-        list.innerHTML = '';  // Clear any previous events
+        list.innerHTML = '';  // Clear current events
 
         let count = 0;
-        const today = new Date();
-        const currentDate = today.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        const today = new Date();  // Get today's date
+        const currentDate = today.toISOString().split("T")[0];  // Format as YYYY-MM-DD
 
         const eventArray = [];
 
-        // Loop through each event
         events.forEach(event => {
           const title = event.match(/SUMMARY:(.*)/);
           const date = event.match(/DTSTART[^:]*:(.*)/);
@@ -169,7 +186,6 @@
           const day = raw.substring(6, 8);
           const eventDate = `${year}-${month}-${day}`;
 
-          // Only show events for today or future
           if (eventDate >= currentDate) {
             eventArray.push({
               date: eventDate,
@@ -178,14 +194,14 @@
           }
         });
 
-        eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);  // Sort by date
+        // Sort the events by date
+        eventArray.sort((a, b) => (a.date > b.date) ? 1 : -1);
 
-        // Display the events
         eventArray.slice(0, 5).forEach(event => {
           const item = document.createElement("li");
           item.textContent = `${event.date.split("-")[2]}/${event.date.split("-")[1]} - ${event.title}`;
           list.appendChild(item);
-          count++;
+          count++;  // Increment count after displaying an event
         });
 
         if (count === 0) {
@@ -195,12 +211,12 @@
       .catch(error => {
         console.error("Error fetching calendar events:", error);
         const list = document.getElementById("calendar");
-        list.innerHTML = "<li>Unable to load events.</li>";
+        list.innerHTML = "<li>Unable to load events due to an error.</li>";
       });
   </script>
 
-  <!-- Weather Data Fetching using OpenWeatherMap API -->
   <script>
+    // Weather Data Fetching using OpenWeatherMap API
     const apiKey = "4ec41d838017d2a6134282b6ff58ad42";  // Replace with your OpenWeatherMap API Key
     const city = "Gateshead";  // Replace with your desired city
     const units = "metric";  // For temperature in Celsius
@@ -221,65 +237,5 @@
       });
   </script>
 
-  <!-- Shopping List Logic -->
-  <script>
-    let shoppingList = JSON.parse(localStorage.getItem("shoppingList")) || [];
-
-    function renderShoppingList() {
-      const list = document.getElementById("shoppingList");
-      list.innerHTML = ''; // Clear previous list
-
-      shoppingList.forEach((item, index) => {
-        const li = document.createElement("li");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("checkbox");
-        checkbox.checked = item.done;
-        checkbox.onclick = function () {
-          toggleItem(index);
-        };
-
-        const itemText = document.createElement("span");
-        itemText.classList.add("shoppingItem");
-        itemText.textContent = item.name;
-
-        const deleteButton = document.createElement("button");
-        deleteButton.classList.add("deleteButton");
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = function () {
-          deleteItem(index);
-        };
-
-        li.appendChild(checkbox);
-        li.appendChild(itemText);
-        li.appendChild(deleteButton);
-        list.appendChild(li);
-      });
-
-      localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-    }
-
-    function addShoppingItem() {
-      const newItem = document.getElementById("newShoppingItem").value;
-      if (newItem.trim()) {
-        shoppingList.push({ name: newItem, done: false });
-        renderShoppingList();
-        document.getElementById("newShoppingItem").value = ''; // Clear the input field
-      }
-    }
-
-    function toggleItem(index) {
-      shoppingList[index].done = !shoppingList[index].done;
-      renderShoppingList();
-    }
-
-    function deleteItem(index) {
-      shoppingList.splice(index, 1);
-      renderShoppingList();
-    }
-
-    renderShoppingList();
-  </script>
-  
 </body>
 </html>
