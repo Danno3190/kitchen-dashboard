@@ -3,27 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Calendar</title>
+  <title>Kitchen Dashboard</title>
 </head>
 <body>
+
   <h2>Calendar Events</h2>
   <ul id="calendar"></ul>
 
   <script>
-    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ"; // Your iCloud Calendar URL here
-    
-    // Test the calendar URL with a basic fetch
-    fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
+    // Replace with your iCloud Calendar URL
+    const url = "https://p156-caldav.icloud.com/published/2/MTA1NzE4MjQxMjEwNTcxOICC5_ESlAX_Y24LY3sAK534rOhMOUh2k4Aih0NB0lukb420-fnm08zkAxwKdWjxTSdME9B2bnoLcv4H9sLwJNQ";  // Replace with the iCloud calendar URL
+
+    fetch(url)
       .then(response => response.text())
       .then(data => {
         const list = document.getElementById("calendar");
         const events = data.split("BEGIN:VEVENT");
+        
         if (events.length > 1) {
           events.forEach(event => {
             const title = event.match(/SUMMARY:(.*)/);
-            if (title) {
+            const date = event.match(/DTSTART[^:]*:(.*)/);
+
+            if (title && date) {
               const li = document.createElement("li");
-              li.textContent = title[1];
+              const raw = date[1].trim();
+              const year = raw.substring(0, 4);
+              const month = raw.substring(4, 6);
+              const day = raw.substring(6, 8);
+              const eventDate = `${year}-${month}-${day}`;
+              li.textContent = `${eventDate} - ${title[1]}`;
               list.appendChild(li);
             }
           });
@@ -37,5 +46,6 @@
         list.innerHTML = "<li>Unable to load events.</li>";
       });
   </script>
+
 </body>
 </html>
